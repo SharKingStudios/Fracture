@@ -1,0 +1,19 @@
+(kicad_sch
+	(version 20250114)
+	(generator "eeschema")
+	(generator_version "9.0")
+	(uuid "75221650-6511-45d6-90de-2d3fdbaa0af3")
+	(paper "A4")
+	(title_block
+		(title "Fracture MIDI Keyboard")
+		(date "2025-12-16")
+		(company "Logan Peterson")
+	)
+	(lib_symbols)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
+)
