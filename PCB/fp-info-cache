@@ -1,4 +1,4 @@
-26673225362585553
+26674991295445185
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -106917,6 +106917,13 @@ SW-SMD_L3.9-W3.0-P4.45
 0
 2
 2
+imported_components
+SW-SMD_MST-12D18G4-SPDT-SLIDE-SWITCH
+
+
+0
+5
+3
 imported_components
 TO-263-5_L10.2-W8.9-P1.70-TL
 
