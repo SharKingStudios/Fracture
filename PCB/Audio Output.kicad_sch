@@ -6472,7 +6472,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "0c66c562-2d8e-4eae-83d6-bcb780ccef0e")
-		(property "Reference" "LED28"
+		(property "Reference" "LED18"
 			(at 240.792 132.334 0)
 			(effects
 				(font
@@ -6533,7 +6533,7 @@
 		(instances
 			(project "Fracture"
 				(path "/75221650-6511-45d6-90de-2d3fdbaa0af3/0f8c0c29-04b9-439a-a446-990ae8598d99"
-					(reference "LED28")
+					(reference "LED18")
 					(unit 1)
 				)
 			)
@@ -6687,7 +6687,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "13d7a98f-2e56-4e3a-8170-1680849bebe7")
-		(property "Reference" "LED22"
+		(property "Reference" "LED24"
 			(at 141.732 132.334 0)
 			(effects
 				(font
@@ -6748,7 +6748,7 @@
 		(instances
 			(project "Fracture"
 				(path "/75221650-6511-45d6-90de-2d3fdbaa0af3/0f8c0c29-04b9-439a-a446-990ae8598d99"
-					(reference "LED22")
+					(reference "LED24")
 					(unit 1)
 				)
 			)
@@ -6828,7 +6828,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "22d6a157-2468-4754-89c7-1fc1926cdb05")
-		(property "Reference" "LED29"
+		(property "Reference" "LED17"
 			(at 257.302 132.334 0)
 			(effects
 				(font
@@ -6889,7 +6889,7 @@
 		(instances
 			(project "Fracture"
 				(path "/75221650-6511-45d6-90de-2d3fdbaa0af3/0f8c0c29-04b9-439a-a446-990ae8598d99"
-					(reference "LED29")
+					(reference "LED17")
 					(unit 1)
 				)
 			)
@@ -8050,7 +8050,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4805145d-8c54-4723-934b-ce72a02b1202")
-		(property "Reference" "LED24"
+		(property "Reference" "LED22"
 			(at 174.752 132.334 0)
 			(effects
 				(font
@@ -8111,7 +8111,7 @@
 		(instances
 			(project "Fracture"
 				(path "/75221650-6511-45d6-90de-2d3fdbaa0af3/0f8c0c29-04b9-439a-a446-990ae8598d99"
-					(reference "LED24")
+					(reference "LED22")
 					(unit 1)
 				)
 			)
@@ -8566,7 +8566,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "538122f9-b8f7-4503-bc08-10a821e59b02")
-		(property "Reference" "LED16"
+		(property "Reference" "LED30"
 			(at 42.672 132.334 0)
 			(effects
 				(font
@@ -8627,7 +8627,7 @@
 		(instances
 			(project "Fracture"
 				(path "/75221650-6511-45d6-90de-2d3fdbaa0af3/0f8c0c29-04b9-439a-a446-990ae8598d99"
-					(reference "LED16")
+					(reference "LED30")
 					(unit 1)
 				)
 			)
@@ -8787,7 +8787,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "5e02bb69-c68a-4ee6-8da5-79411c3cfc2c")
-		(property "Reference" "LED25"
+		(property "Reference" "LED21"
 			(at 191.262 132.334 0)
 			(effects
 				(font
@@ -8848,7 +8848,7 @@
 		(instances
 			(project "Fracture"
 				(path "/75221650-6511-45d6-90de-2d3fdbaa0af3/0f8c0c29-04b9-439a-a446-990ae8598d99"
-					(reference "LED25")
+					(reference "LED21")
 					(unit 1)
 				)
 			)
@@ -8939,7 +8939,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "5ead1a48-d114-4b8a-82c9-62d00e8d4941")
-		(property "Reference" "LED18"
+		(property "Reference" "LED28"
 			(at 75.692 132.334 0)
 			(effects
 				(font
@@ -9000,7 +9000,7 @@
 		(instances
 			(project "Fracture"
 				(path "/75221650-6511-45d6-90de-2d3fdbaa0af3/0f8c0c29-04b9-439a-a446-990ae8598d99"
-					(reference "LED18")
+					(reference "LED28")
 					(unit 1)
 				)
 			)
@@ -9310,7 +9310,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6bf4b6a9-cbdb-4e9f-9769-aeeddde80f5a")
-		(property "Reference" "LED17"
+		(property "Reference" "LED29"
 			(at 59.182 132.334 0)
 			(effects
 				(font
@@ -9371,7 +9371,7 @@
 		(instances
 			(project "Fracture"
 				(path "/75221650-6511-45d6-90de-2d3fdbaa0af3/0f8c0c29-04b9-439a-a446-990ae8598d99"
-					(reference "LED17")
+					(reference "LED29")
 					(unit 1)
 				)
 			)
@@ -9809,7 +9809,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "7c90af74-e09e-4c86-b99a-9c8afb47396d")
-		(property "Reference" "LED26"
+		(property "Reference" "LED20"
 			(at 207.772 132.334 0)
 			(effects
 				(font
@@ -9870,7 +9870,7 @@
 		(instances
 			(project "Fracture"
 				(path "/75221650-6511-45d6-90de-2d3fdbaa0af3/0f8c0c29-04b9-439a-a446-990ae8598d99"
-					(reference "LED26")
+					(reference "LED20")
 					(unit 1)
 				)
 			)
@@ -10393,7 +10393,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "90bf732e-9625-4301-b91f-31decf58b546")
-		(property "Reference" "LED21"
+		(property "Reference" "LED25"
 			(at 125.222 132.334 0)
 			(effects
 				(font
@@ -10454,7 +10454,7 @@
 		(instances
 			(project "Fracture"
 				(path "/75221650-6511-45d6-90de-2d3fdbaa0af3/0f8c0c29-04b9-439a-a446-990ae8598d99"
-					(reference "LED21")
+					(reference "LED25")
 					(unit 1)
 				)
 			)
@@ -12093,7 +12093,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d3a910e8-82e0-4c50-9d8a-34f61965d835")
-		(property "Reference" "LED30"
+		(property "Reference" "LED16"
 			(at 273.812 132.334 0)
 			(effects
 				(font
@@ -12154,7 +12154,7 @@
 		(instances
 			(project "Fracture"
 				(path "/75221650-6511-45d6-90de-2d3fdbaa0af3/0f8c0c29-04b9-439a-a446-990ae8598d99"
-					(reference "LED30")
+					(reference "LED16")
 					(unit 1)
 				)
 			)
@@ -12169,7 +12169,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d5583b28-aa0c-4401-818f-2f1e68e56940")
-		(property "Reference" "LED20"
+		(property "Reference" "LED26"
 			(at 108.712 132.334 0)
 			(effects
 				(font
@@ -12230,7 +12230,7 @@
 		(instances
 			(project "Fracture"
 				(path "/75221650-6511-45d6-90de-2d3fdbaa0af3/0f8c0c29-04b9-439a-a446-990ae8598d99"
-					(reference "LED20")
+					(reference "LED26")
 					(unit 1)
 				)
 			)
@@ -12311,7 +12311,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d95457fe-df8c-4065-ba02-9984f01cee8a")
-		(property "Reference" "LED27"
+		(property "Reference" "LED19"
 			(at 224.282 132.334 0)
 			(effects
 				(font
@@ -12372,7 +12372,7 @@
 		(instances
 			(project "Fracture"
 				(path "/75221650-6511-45d6-90de-2d3fdbaa0af3/0f8c0c29-04b9-439a-a446-990ae8598d99"
-					(reference "LED27")
+					(reference "LED19")
 					(unit 1)
 				)
 			)
@@ -13053,7 +13053,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f6fca909-9b55-46cd-9233-193b411b0218")
-		(property "Reference" "LED19"
+		(property "Reference" "LED27"
 			(at 92.202 132.334 0)
 			(effects
 				(font
@@ -13114,7 +13114,7 @@
 		(instances
 			(project "Fracture"
 				(path "/75221650-6511-45d6-90de-2d3fdbaa0af3/0f8c0c29-04b9-439a-a446-990ae8598d99"
-					(reference "LED19")
+					(reference "LED27")
 					(unit 1)
 				)
 			)
