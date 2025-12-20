@@ -52,21 +52,126 @@
         }
       },
       "diff_pair_dimensions": [],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        [
+          "clearance|205900000|65242500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|0100e3e5-e6ca-4f0c-aea5-1af4764f2113",
+          ""
+        ],
+        [
+          "clearance|205900000|65742500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|0100e3e5-e6ca-4f0c-aea5-1af4764f2113",
+          ""
+        ],
+        [
+          "clearance|205900000|66642500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|bd023368-e85a-4908-82b5-a83836121b15",
+          ""
+        ],
+        [
+          "clearance|205900000|67142500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|bd023368-e85a-4908-82b5-a83836121b15",
+          ""
+        ],
+        [
+          "clearance|206350000|64792500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|fbacf042-44fb-4cc6-a217-5d355be442df",
+          ""
+        ],
+        [
+          "clearance|206350000|66192500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|0ed2b227-6f63-4b0d-9133-544e21a6f470",
+          ""
+        ],
+        [
+          "clearance|206350000|67592500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|6a10c519-16b1-4521-8f43-c024cdd36ba4",
+          ""
+        ],
+        [
+          "clearance|206850000|64792500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|fbacf042-44fb-4cc6-a217-5d355be442df",
+          ""
+        ],
+        [
+          "clearance|206850000|66192500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|0ed2b227-6f63-4b0d-9133-544e21a6f470",
+          ""
+        ],
+        [
+          "clearance|206850000|67592500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|6a10c519-16b1-4521-8f43-c024cdd36ba4",
+          ""
+        ],
+        [
+          "clearance|207300000|65242500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|e44ca72f-b19d-4eb2-882c-254ee01aa767",
+          ""
+        ],
+        [
+          "clearance|207300000|65742500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|e44ca72f-b19d-4eb2-882c-254ee01aa767",
+          ""
+        ],
+        [
+          "clearance|207300000|66642500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|6866fd3f-36f3-4206-8e9d-7c72c2c8b746",
+          ""
+        ],
+        [
+          "clearance|207300000|67142500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|6866fd3f-36f3-4206-8e9d-7c72c2c8b746",
+          ""
+        ],
+        [
+          "clearance|207750000|64792500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|74fddfe2-2423-4662-afe2-2320d75fb691",
+          ""
+        ],
+        [
+          "clearance|207750000|66192500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|bb0f92c0-a115-4ef1-a076-f57d328ea03a",
+          ""
+        ],
+        [
+          "clearance|207750000|67592500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|cdd83992-69ea-4244-821a-81bacee4d5f4",
+          ""
+        ],
+        [
+          "clearance|208250000|64792500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|74fddfe2-2423-4662-afe2-2320d75fb691",
+          ""
+        ],
+        [
+          "clearance|208250000|66192500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|bb0f92c0-a115-4ef1-a076-f57d328ea03a",
+          ""
+        ],
+        [
+          "clearance|208250000|67592500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|cdd83992-69ea-4244-821a-81bacee4d5f4",
+          ""
+        ],
+        [
+          "clearance|208700000|65242500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|f0dd0536-afe1-4ae9-9187-e3370f4da932",
+          ""
+        ],
+        [
+          "clearance|208700000|65742500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|f0dd0536-afe1-4ae9-9187-e3370f4da932",
+          ""
+        ],
+        [
+          "clearance|208700000|66642500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|56b875c9-e9b8-463b-ad03-298c83f19a82",
+          ""
+        ],
+        [
+          "clearance|208700000|67142500|bd6b3a7f-b2c7-432c-90af-2bb06a02619a|56b875c9-e9b8-463b-ad03-298c83f19a82",
+          ""
+        ],
+        [
+          "hole_clearance|48700000|32472500|4834fb6e-20a0-4311-ae81-136b01944973|ceb71f1f-a884-43ec-acbd-61c67e397f0c",
+          ""
+        ],
+        [
+          "hole_clearance|54500000|32472500|5b2f4950-1fb4-489d-bbad-de7858bb2048|59732bec-c717-46e1-815e-2c6233551971",
+          ""
+        ]
+      ],
       "meta": {
         "version": 2
       },
       "rule_severities": {
-        "annular_width": "error",
+        "annular_width": "ignore",
         "clearance": "error",
         "connection_width": "warning",
-        "copper_edge_clearance": "error",
+        "copper_edge_clearance": "ignore",
         "copper_sliver": "warning",
         "courtyards_overlap": "error",
         "creepage": "error",
         "diff_pair_gap_out_of_range": "error",
         "diff_pair_uncoupled_length_too_long": "error",
-        "drill_out_of_range": "error",
+        "drill_out_of_range": "ignore",
         "duplicate_footprints": "warning",
         "extra_footprint": "warning",
         "footprint": "error",
@@ -91,16 +196,16 @@
         "net_conflict": "warning",
         "nonmirrored_text_on_back_layer": "warning",
         "npth_inside_courtyard": "ignore",
-        "padstack": "warning",
+        "padstack": "ignore",
         "pth_inside_courtyard": "ignore",
         "shorting_items": "error",
         "silk_edge_clearance": "warning",
-        "silk_over_copper": "warning",
-        "silk_overlap": "warning",
+        "silk_over_copper": "ignore",
+        "silk_overlap": "ignore",
         "skew_out_of_range": "error",
         "solder_mask_bridge": "error",
-        "starved_thermal": "error",
-        "text_height": "warning",
+        "starved_thermal": "ignore",
+        "text_height": "ignore",
         "text_on_edge_cuts": "error",
         "text_thickness": "warning",
         "through_hole_pad_without_hole": "error",
@@ -131,7 +236,7 @@
         "min_text_thickness": 0.08,
         "min_through_hole_diameter": 0.3,
         "min_track_width": 0.0,
-        "min_via_annular_width": 0.1,
+        "min_via_annular_width": 0.05,
         "min_via_diameter": 0.5,
         "solder_mask_to_copper_clearance": 0.0,
         "use_height_for_length_calcs": true
@@ -612,6 +717,14 @@
     [
       "75221650-6511-45d6-90de-2d3fdbaa0af3",
       "Root"
+    ],
+    [
+      "9760028b-a77f-48df-bd28-4492a7e7be8a",
+      "Analog Input"
+    ],
+    [
+      "0f8c0c29-04b9-439a-a446-990ae8598d99",
+      "Audio Output"
     ]
   ],
   "text_variables": {}

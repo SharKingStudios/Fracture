@@ -1,4 +1,4 @@
-26674991295445185
+26690889214651268
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -106841,6 +106841,13 @@ DC-IN-TH_DC-005-A200
 3
 3
 imported_components
+HDR-SMD_6P-P2.54-V
+
+
+0
+6
+6
+imported_components
 HDR-SMD_80P-P2.54-V-M-R2-C40-S7.4
 
 
@@ -106869,6 +106876,13 @@ LED-SMD_4P-L5.0-W5.0-LS5.4-TL-1
 4
 4
 imported_components
+LED-SMD_L3.2-W2.8-LS5.9_SK6812MINI-E
+
+
+0
+4
+4
+imported_components
 LED0805-RD
 
 
@@ -106876,7 +106890,35 @@ LED0805-RD
 2
 2
 imported_components
+MX_SK6812MINI-E_REV
+Add-on for regular MX-footprints with SK6812 MINI-E
+cherry MX SK6812 Mini-E rearmount rear mount led rgb backlight
+0
+4
+4
+imported_components
+OSC-SMD_4P-L2.0-W1.6-BL
+
+
+0
+4
+4
+imported_components
+R0805
+
+
+0
+2
+2
+imported_components
 RELAY-TH_G5NB-1A-E-DCXX
+
+
+0
+4
+4
+imported_components
+SK6812-MINI-E
 
 
 0
@@ -106896,6 +106938,13 @@ SOIC-8_L5.0-W4.0-P1.27-LS6.0-BL
 0
 8
 8
+imported_components
+SOP-16_L9.9-W3.9-P1.27-LS6.1-BL
+
+
+0
+16
+16
 imported_components
 SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR
 
@@ -106945,6 +106994,20 @@ USB-C_SMD-TYPE-C-31-M-12
 0
 22
 20
+imported_components
+Untitled
+
+
+0
+0
+0
+imported_components
+VSSOP-8_L3.0-W3.0-P0.65-LS4.9-BL
+
+
+0
+8
+8
 imported_components
 WIFIM-SMD_ESP32-S3-WROOM-1-N8
 

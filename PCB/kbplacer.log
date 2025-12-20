@@ -2,4 +2,246 @@
 [kbplacer_plugin_action.py:66]: Python version: '3.11.5 (main, Jan 27 2025, 07:08:36) [MSC v.1942 64 bit (AMD64)]'
 [kbplacer_plugin_action.py:67]: KiCad version: 9.0.2 with 4.2.2 msw (phoenix) wxWidgets 3.2.6
 [kbplacer_dialog.py:586]: Language: en
-[kbplacer_plugin_action.py:83]: GUI state: {"layout_path": "", "key_distance": [19.05, 19.05], "key_info": {"annotation_format": "SW{}", "position_option": "Default", "position": {"x": 0.0, "y": 0.0, "orientation": 0.0, "side": "Front"}, "template_path": ""}, "enable_diode_placement": true, "route_switches_with_diodes": true, "optimize_diodes_orientation": false, "diode_info": {"annotation_format": "D{}", "position_option": "Default", "position": {"x": 5.08, "y": 3.03, "orientation": 90.0, "side": "Back"}, "template_path": ""}, "additional_elements": [{"annotation_format": "ST{}", "position_option": "Custom", "position": {"x": 0.0, "y": 0.0, "orientation": 0.0, "side": "Front"}, "template_path": ""}], "route_rows_and_columns": true, "template_path": "", "generate_outline": false, "outline_delta": 0.0}
+[kbplacer_plugin_action.py:75]: GUI state: {"layout_path": "C:\\Users\\conta\\Downloads\\small-midi-keyboard.json", "key_distance": [19.05, 19.05], "key_info": {"annotation_format": "S{}", "position_option": "Default", "position": {"x": 0.0, "y": 0.0, "orientation": 0.0, "side": "Front"}, "template_path": ""}, "enable_diode_placement": false, "route_switches_with_diodes": false, "optimize_diodes_orientation": false, "diode_info": {"annotation_format": "D{}", "position_option": "Default", "position": {"x": 5.08, "y": 3.03, "orientation": 90.0, "side": "Back"}, "template_path": ""}, "additional_elements": [{"annotation_format": "LED{}", "position_option": "Custom", "position": {"x": 0.0, "y": -5.0, "orientation": 180.0, "side": "Back"}, "template_path": ""}, {"annotation_format": "C{}", "position_option": "Custom", "position": {"x": -3.0, "y": 2.0, "orientation": 0.0, "side": "Back"}, "template_path": ""}], "route_rows_and_columns": true, "template_path": "", "generate_outline": false, "outline_delta": 0.0}
+[key_placer.py:362]: Set key 1U distance: 19050000/19050000
+[key_placer.py:117]: Unexpected switch net position detected, each switch should have two unique nets unambiguously defining position in key matrix, switch-by-matrix association can't be used
+[key_placer.py:124]: Switches by nets: {}
+[key_placer.py:128]: Diodes by switch: {}
+[board_modifier.py:64]: Searching for S1 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[key_placer.py:558]: Looking for connection template between S1 and other elements
+[board_modifier.py:98]: Getting S1 footprint position: (72325000, 38100000)
+[key_placer.py:602]: Got connection template: 
+[kle_serial.py:897]: User layout: [{'backcolor': '#666666', 'name': 'Small MIDI keyboard', 'author': 'bin1101', 'switchMount': 'cherry', 'switchBrand': 'gateron', 'switchType': 'KS-3-Tea', 'plate': True}, [{'y': 0.25, 'x': 2.5, 'a': 7}, '', '', '', '', '', '', '', ''], [{'y': 0.5, 'x': 0.5, 'c': '#1f1f1f'}, '', '', {'x': 1}, '', '', '', {'x': 1}, '', '', {'x': 1}, '', '', ''], [{'c': '#cccccc'}, '', '', '', '', '', '', '', {'n': True}, '', '', '', '', '', '', '']]
+[key_placer.py:662]: Layout offset: (38100000, 23812500)
+[board_modifier.py:85]: Setting S1 footprint position: (95250000, 38100000)
+[board_modifier.py:85]: Setting S2 footprint position: (114300000, 38100000)
+[board_modifier.py:85]: Setting S3 footprint position: (133350000, 38100000)
+[board_modifier.py:85]: Setting S4 footprint position: (152400000, 38100000)
+[board_modifier.py:85]: Setting S5 footprint position: (171450000, 38100000)
+[board_modifier.py:85]: Setting S6 footprint position: (190500000, 38100000)
+[board_modifier.py:85]: Setting S7 footprint position: (209550000, 38100000)
+[board_modifier.py:85]: Setting S8 footprint position: (228600000, 38100000)
+[board_modifier.py:85]: Setting S9 footprint position: (57150000, 66675000)
+[board_modifier.py:85]: Setting S10 footprint position: (76200000, 66675000)
+[board_modifier.py:85]: Setting S11 footprint position: (114300000, 66675000)
+[board_modifier.py:85]: Setting S12 footprint position: (133350000, 66675000)
+[board_modifier.py:85]: Setting S13 footprint position: (152400000, 66675000)
+[board_modifier.py:85]: Setting S14 footprint position: (190500000, 66675000)
+[board_modifier.py:85]: Setting S15 footprint position: (209550000, 66675000)
+[board_modifier.py:85]: Setting S16 footprint position: (247650000, 66675000)
+[board_modifier.py:85]: Setting S17 footprint position: (266700000, 66675000)
+[board_modifier.py:85]: Setting S18 footprint position: (285750000, 66675000)
+[board_modifier.py:85]: Setting S19 footprint position: (47625000, 85725000)
+[board_modifier.py:85]: Setting S20 footprint position: (66675000, 85725000)
+[board_modifier.py:85]: Setting S21 footprint position: (85725000, 85725000)
+[board_modifier.py:85]: Setting S22 footprint position: (104775000, 85725000)
+[board_modifier.py:85]: Setting S23 footprint position: (123825000, 85725000)
+[board_modifier.py:85]: Setting S24 footprint position: (142875000, 85725000)
+[board_modifier.py:85]: Setting S25 footprint position: (161925000, 85725000)
+[board_modifier.py:85]: Setting S26 footprint position: (180975000, 85725000)
+[board_modifier.py:85]: Setting S27 footprint position: (200025000, 85725000)
+[board_modifier.py:85]: Setting S28 footprint position: (219075000, 85725000)
+[board_modifier.py:85]: Setting S29 footprint position: (238125000, 85725000)
+[board_modifier.py:85]: Setting S30 footprint position: (257175000, 85725000)
+[board_modifier.py:85]: Setting S31 footprint position: (276225000, 85725000)
+[board_modifier.py:85]: Setting S32 footprint position: (295275000, 85725000)
+[key_placer.py:999]: Diode info: [ElementInfo(annotation_format='D{}', position_option=<PositionOption.UNCHANGED: 'Unchanged'>, position=ElementPosition(x=5.08, y=3.03, orientation=90.0, side=<Side.BACK: 'Back'>), template_path='')]
+[key_placer.py:775]: Placing additional elements for SW4
+[board_modifier.py:98]: Getting SW4 footprint position: (217575000, 35400000)
+[board_modifier.py:75]: Searching for optional LEDW4 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[board_modifier.py:75]: Searching for optional CW4 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:775]: Placing additional elements for S32
+[board_modifier.py:98]: Getting S32 footprint position: (295275000, 85725000)
+[board_modifier.py:75]: Searching for optional LED32 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED32 footprint position: (295275000, 80725000)
+[board_modifier.py:75]: Searching for optional C32 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C32 footprint position: (292275000, 87725000)
+[key_placer.py:775]: Placing additional elements for S31
+[board_modifier.py:98]: Getting S31 footprint position: (276225000, 85725000)
+[board_modifier.py:75]: Searching for optional LED31 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED31 footprint position: (276225000, 80725000)
+[board_modifier.py:75]: Searching for optional C31 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C31 footprint position: (273225000, 87725000)
+[key_placer.py:775]: Placing additional elements for S30
+[board_modifier.py:98]: Getting S30 footprint position: (257175000, 85725000)
+[board_modifier.py:75]: Searching for optional LED30 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED30 footprint position: (257175000, 80725000)
+[board_modifier.py:75]: Searching for optional C30 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C30 footprint position: (254175000, 87725000)
+[key_placer.py:775]: Placing additional elements for S29
+[board_modifier.py:98]: Getting S29 footprint position: (238125000, 85725000)
+[board_modifier.py:75]: Searching for optional LED29 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED29 footprint position: (238125000, 80725000)
+[board_modifier.py:75]: Searching for optional C29 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C29 footprint position: (235125000, 87725000)
+[key_placer.py:775]: Placing additional elements for S28
+[board_modifier.py:98]: Getting S28 footprint position: (219075000, 85725000)
+[board_modifier.py:75]: Searching for optional LED28 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED28 footprint position: (219075000, 80725000)
+[board_modifier.py:75]: Searching for optional C28 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C28 footprint position: (216075000, 87725000)
+[key_placer.py:775]: Placing additional elements for S27
+[board_modifier.py:98]: Getting S27 footprint position: (200025000, 85725000)
+[board_modifier.py:75]: Searching for optional LED27 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED27 footprint position: (200025000, 80725000)
+[board_modifier.py:75]: Searching for optional C27 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C27 footprint position: (197025000, 87725000)
+[key_placer.py:775]: Placing additional elements for S26
+[board_modifier.py:98]: Getting S26 footprint position: (180975000, 85725000)
+[board_modifier.py:75]: Searching for optional LED26 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED26 footprint position: (180975000, 80725000)
+[board_modifier.py:75]: Searching for optional C26 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C26 footprint position: (177975000, 87725000)
+[key_placer.py:775]: Placing additional elements for S25
+[board_modifier.py:98]: Getting S25 footprint position: (161925000, 85725000)
+[board_modifier.py:75]: Searching for optional LED25 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED25 footprint position: (161925000, 80725000)
+[board_modifier.py:75]: Searching for optional C25 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C25 footprint position: (158925000, 87725000)
+[key_placer.py:775]: Placing additional elements for S24
+[board_modifier.py:98]: Getting S24 footprint position: (142875000, 85725000)
+[board_modifier.py:75]: Searching for optional LED24 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED24 footprint position: (142875000, 80725000)
+[board_modifier.py:75]: Searching for optional C24 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C24 footprint position: (139875000, 87725000)
+[key_placer.py:775]: Placing additional elements for S23
+[board_modifier.py:98]: Getting S23 footprint position: (123825000, 85725000)
+[board_modifier.py:75]: Searching for optional LED23 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED23 footprint position: (123825000, 80725000)
+[board_modifier.py:75]: Searching for optional C23 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C23 footprint position: (120825000, 87725000)
+[key_placer.py:775]: Placing additional elements for S22
+[board_modifier.py:98]: Getting S22 footprint position: (104775000, 85725000)
+[board_modifier.py:75]: Searching for optional LED22 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED22 footprint position: (104775000, 80725000)
+[board_modifier.py:75]: Searching for optional C22 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C22 footprint position: (101775000, 87725000)
+[key_placer.py:775]: Placing additional elements for S21
+[board_modifier.py:98]: Getting S21 footprint position: (85725000, 85725000)
+[board_modifier.py:75]: Searching for optional LED21 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED21 footprint position: (85725000, 80725000)
+[board_modifier.py:75]: Searching for optional C21 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C21 footprint position: (82725000, 87725000)
+[key_placer.py:775]: Placing additional elements for S20
+[board_modifier.py:98]: Getting S20 footprint position: (66675000, 85725000)
+[board_modifier.py:75]: Searching for optional LED20 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED20 footprint position: (66675000, 80725000)
+[board_modifier.py:75]: Searching for optional C20 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C20 footprint position: (63675000, 87725000)
+[key_placer.py:775]: Placing additional elements for S19
+[board_modifier.py:98]: Getting S19 footprint position: (47625000, 85725000)
+[board_modifier.py:75]: Searching for optional LED19 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED19 footprint position: (47625000, 80725000)
+[board_modifier.py:75]: Searching for optional C19 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C19 footprint position: (44625000, 87725000)
+[key_placer.py:775]: Placing additional elements for S18
+[board_modifier.py:98]: Getting S18 footprint position: (285750000, 66675000)
+[board_modifier.py:75]: Searching for optional LED18 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED18 footprint position: (285750000, 61675000)
+[board_modifier.py:75]: Searching for optional C18 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C18 footprint position: (282750000, 68675000)
+[key_placer.py:775]: Placing additional elements for S17
+[board_modifier.py:98]: Getting S17 footprint position: (266700000, 66675000)
+[board_modifier.py:75]: Searching for optional LED17 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED17 footprint position: (266700000, 61675000)
+[board_modifier.py:75]: Searching for optional C17 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C17 footprint position: (263700000, 68675000)
+[key_placer.py:775]: Placing additional elements for S16
+[board_modifier.py:98]: Getting S16 footprint position: (247650000, 66675000)
+[board_modifier.py:75]: Searching for optional LED16 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED16 footprint position: (247650000, 61675000)
+[board_modifier.py:75]: Searching for optional C16 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting C16 footprint position: (244650000, 68675000)
+[key_placer.py:775]: Placing additional elements for S15
+[board_modifier.py:98]: Getting S15 footprint position: (209550000, 66675000)
+[board_modifier.py:75]: Searching for optional LED15 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED15 footprint position: (209550000, 61675000)
+[board_modifier.py:75]: Searching for optional C15 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:775]: Placing additional elements for S14
+[board_modifier.py:98]: Getting S14 footprint position: (190500000, 66675000)
+[board_modifier.py:75]: Searching for optional LED14 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED14 footprint position: (190500000, 61675000)
+[board_modifier.py:75]: Searching for optional C14 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:775]: Placing additional elements for S13
+[board_modifier.py:98]: Getting S13 footprint position: (152400000, 66675000)
+[board_modifier.py:75]: Searching for optional LED13 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED13 footprint position: (152400000, 61675000)
+[board_modifier.py:75]: Searching for optional C13 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:775]: Placing additional elements for S12
+[board_modifier.py:98]: Getting S12 footprint position: (133350000, 66675000)
+[board_modifier.py:75]: Searching for optional LED12 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED12 footprint position: (133350000, 61675000)
+[board_modifier.py:75]: Searching for optional C12 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:775]: Placing additional elements for S11
+[board_modifier.py:98]: Getting S11 footprint position: (114300000, 66675000)
+[board_modifier.py:75]: Searching for optional LED11 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED11 footprint position: (114300000, 61675000)
+[board_modifier.py:75]: Searching for optional C11 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:775]: Placing additional elements for S10
+[board_modifier.py:98]: Getting S10 footprint position: (76200000, 66675000)
+[board_modifier.py:75]: Searching for optional LED10 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED10 footprint position: (76200000, 61675000)
+[board_modifier.py:75]: Searching for optional C10 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:775]: Placing additional elements for S9
+[board_modifier.py:98]: Getting S9 footprint position: (57150000, 66675000)
+[board_modifier.py:75]: Searching for optional LED9 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED9 footprint position: (57150000, 61675000)
+[board_modifier.py:75]: Searching for optional C9 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:775]: Placing additional elements for S8
+[board_modifier.py:98]: Getting S8 footprint position: (228600000, 38100000)
+[board_modifier.py:75]: Searching for optional LED8 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED8 footprint position: (228600000, 33100000)
+[board_modifier.py:75]: Searching for optional C8 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:775]: Placing additional elements for S7
+[board_modifier.py:98]: Getting S7 footprint position: (209550000, 38100000)
+[board_modifier.py:75]: Searching for optional LED7 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED7 footprint position: (209550000, 33100000)
+[board_modifier.py:75]: Searching for optional C7 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:775]: Placing additional elements for S6
+[board_modifier.py:98]: Getting S6 footprint position: (190500000, 38100000)
+[board_modifier.py:75]: Searching for optional LED6 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED6 footprint position: (190500000, 33100000)
+[board_modifier.py:75]: Searching for optional C6 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:775]: Placing additional elements for S5
+[board_modifier.py:98]: Getting S5 footprint position: (171450000, 38100000)
+[board_modifier.py:75]: Searching for optional LED5 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED5 footprint position: (171450000, 33100000)
+[board_modifier.py:75]: Searching for optional C5 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:775]: Placing additional elements for S4
+[board_modifier.py:98]: Getting S4 footprint position: (152400000, 38100000)
+[board_modifier.py:75]: Searching for optional LED4 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED4 footprint position: (152400000, 33100000)
+[board_modifier.py:75]: Searching for optional C4 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:775]: Placing additional elements for S3
+[board_modifier.py:98]: Getting S3 footprint position: (133350000, 38100000)
+[board_modifier.py:75]: Searching for optional LED3 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED3 footprint position: (133350000, 33100000)
+[board_modifier.py:75]: Searching for optional C3 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:775]: Placing additional elements for S2
+[board_modifier.py:98]: Getting S2 footprint position: (114300000, 38100000)
+[board_modifier.py:75]: Searching for optional LED2 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED2 footprint position: (114300000, 33100000)
+[board_modifier.py:75]: Searching for optional C2 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:775]: Placing additional elements for S1
+[board_modifier.py:98]: Getting S1 footprint position: (95250000, 38100000)
+[board_modifier.py:75]: Searching for optional LED1 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:85]: Setting LED1 footprint position: (95250000, 33100000)
+[board_modifier.py:75]: Searching for optional C1 footprint in C:\Users\conta\OneDrive\Documents\GitHub\Fracture\PCB\Fracture.kicad_pcb
+[board_modifier.py:80]: Footprint not found
+[key_placer.py:458]: Removing dangling tracks
