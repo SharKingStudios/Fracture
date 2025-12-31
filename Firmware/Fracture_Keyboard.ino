@@ -29,9 +29,9 @@
       * Any board plugged into USB outputs MIDI for the whole keyboard
 
   Neighbor wiring assumption:
-    - IO43 = LEFT neighbor signal (INPUT_PULLUP).
-    - IO41 = RIGHT neighbor signal (OUTPUT).
-    - Each board’s IO2 connects to the next board’s IO1 on its right.
+    - IO40 = LEFT neighbor signal (INPUT_PULLUP).
+    - IO42 = RIGHT neighbor signal (OUTPUT).
+    - Each board’s IO42 connects to the next board’s IO40 on its right.
 */
 
 #include <Arduino.h>
@@ -46,8 +46,8 @@
 // ========================= PIN DEFINITIONS =========================
 
 // Physical neighbor chain pins
-#define PIN_NEIGHBOR_LEFT    43   // IO43: left neighbor signal (input)
-#define PIN_NEIGHBOR_RIGHT   41   // IO41: right neighbor signal (output)
+#define PIN_NEIGHBOR_LEFT    40   // IO40: left neighbor signal (input)
+#define PIN_NEIGHBOR_RIGHT   42   // IO42: right neighbor signal (output)
 
 // Encoder (rewired to free IO1/IO2)
 #define PIN_ENC_A            1
