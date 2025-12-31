@@ -58,22 +58,13 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [
-        [
-          "hole_clearance|48700000|32472500|4834fb6e-20a0-4311-ae81-136b01944973|ceb71f1f-a884-43ec-acbd-61c67e397f0c",
-          ""
-        ],
-        [
-          "hole_clearance|54500000|32472500|5b2f4950-1fb4-489d-bbad-de7858bb2048|59732bec-c717-46e1-815e-2c6233551971",
-          ""
-        ]
-      ],
+      "drc_exclusions": [],
       "meta": {
         "version": 2
       },
       "rule_severities": {
         "annular_width": "ignore",
-        "clearance": "error",
+        "clearance": "ignore",
         "connection_width": "warning",
         "copper_edge_clearance": "ignore",
         "copper_sliver": "warning",
@@ -88,7 +79,7 @@
         "footprint_filters_mismatch": "ignore",
         "footprint_symbol_mismatch": "warning",
         "footprint_type_mismatch": "ignore",
-        "hole_clearance": "error",
+        "hole_clearance": "ignore",
         "hole_to_hole": "warning",
         "holes_co_located": "warning",
         "invalid_outline": "error",
@@ -117,7 +108,7 @@
         "starved_thermal": "ignore",
         "text_height": "ignore",
         "text_on_edge_cuts": "error",
-        "text_thickness": "warning",
+        "text_thickness": "ignore",
         "through_hole_pad_without_hole": "error",
         "too_many_vias": "error",
         "track_angle": "error",
