@@ -1,0 +1,64 @@
+Value,Qty,Price Ea.,Price total (MOQ),Item link
+CL21A106KAYNNNE (10uF 25V X5R 0805),40,0.0100,0.43,https://www.lcsc.com/product-detail/C15850.html
+CL21B103KBCNNNC (0.01uF 50V X7R 0805),8,0.0095,0.48,https://www.lcsc.com/product-detail/C84715.html
+CL21B104KBCNNNC (0.1uF 50V X7R 0805),164,0.0063,1.26,https://www.lcsc.com/product-detail/C1711.html
+CL21B474KAFNNNE (0.47uF 25V X7R 0805),12,0.0114,0.57,https://www.lcsc.com/product-detail/C15972.html
+CL21B105KBFNNNE (1uF 50V X7R 0805),12,0.0092,0.18,https://www.lcsc.com/product-detail/C28323.html
+0805W8F1000T5E (100Ω ±1% 0805),8,0.0019,0.19,https://www.lcsc.com/product-detail/C17408.html
+0805W8F5101T5E (5.1kΩ ±1% 0805),8,0.0019,0.19,https://www.lcsc.com/product-detail/C27834.html
+0805W8F2000T5E (200Ω ±1% 0805),4,0.0019,0.19,https://www.lcsc.com/product-detail/C17540.html
+0805W8F1002T5E (10kΩ ±1% 0805),12,0.0021,0.21,https://www.lcsc.com/product-detail/C17414.html
+0805W8F220JT5E (22Ω ±1% 0805),12,0.0020,0.20,https://www.lcsc.com/product-detail/C17561.html
+0805W8F1200T5E (120Ω ±1% 0805),4,0.0020,0.20,https://www.lcsc.com/product-detail/Chip-Resistor-Surface-Mount_UNI-ROYAL-Uniroyal-Elec_C17437.html
+0805W8F1003T5E (100kΩ ±1% 0805),4,0.0019,0.19,https://www.lcsc.com/product-detail/C149504.html
+0805W8F2002T5E (20kΩ ±1% 0805),16,0.0020,0.20,https://www.lcsc.com/product-detail/C4328.html
+RVT1H470M0607 (47uF 50V electrolytic),4,0.0310,0.62,https://www.lcsc.com/product-detail/C72523.html
+RVT1E331M0810 (330uF electrolytic),4,0.0567,0.57,https://www.lcsc.com/product-detail/C335985.html
+RVT1V101M0607 (100uF 35V electrolytic),8,0.03,0.60,https://www.lcsc.com/product-detail/C72478.html
+SS54 (Schottky diode),16,0.0434,0.87,https://www.lcsc.com/product-detail/C22452.html
+LED 0805 (purple),4,0.131,0.66,https://www.lcsc.com/product-detail/C7371915.html
+BLM21PG221SN1D (Ferrite bead 0805),8,0.0166,0.83,https://www.lcsc.com/product-detail/C85840.html
+CYA1040-33UH (33uH inductor),4,0.3363,1.68,https://www.lcsc.com/product-detail/C6364680.html
+MST-12D18G4 (SPDT slide switch),4,0.0768,0.38,https://www.lcsc.com/product-detail/C49023767.html
+TS-1088-AR02016 (tactile switch 4x3mm),8,0.0445,0.45,https://www.lcsc.com/product-detail/C720477.html
+Rotary Encoder (Alps EC11E w/ switch),4,1.83,7.32,https://www.lcsc.com/product-detail/C470742.html
+USB-C receptacle (USB-TYPE-C-018 / C2927038),4,0.051,0.51,https://www.lcsc.com/product-detail/C2927038.html
+DC Barrel Jack DC-005-A200,4,0.1169,0.58,https://www.lcsc.com/product-detail/C720557.html
+PJ-320D (3.5mm audio jack),4,0.0969,0.48,https://www.lcsc.com/product-detail/C521460.html
+PinHeader 1x40 2.54mm vertical,2,0.1177,0.59,https://www.lcsc.com/product-detail/C2337.html
+PinSocket 1x40 2.54mm vertical,2,0.2112,1.06,https://www.lcsc.com/product-detail/C47940.html
+2x3 SMD header 2.54mm (Conn_02x03),3,0.2521,1.26,https://www.lcsc.com/product-detail/C5378173.html
+AMS1117-3.3 (SOT-223),12,0.16,2.51,https://www.lcsc.com/product-detail/C6186.html
+74HC4067PW 118 (TSSOP-24),8,0.46,4.61,https://www.lcsc.com/product-detail/C179326.html
+ESP32-S3-WROOM-1-N4,4,4.35,17.40,https://www.lcsc.com/product-detail/C2913197.html
+LM2596SX-5.0/NOPB (TO-263-5),4,0.86,3.44,https://www.lcsc.com/product-detail/C10002.html
+SP3485EN-L/TR (SOIC-8),4,0.20,0.80,https://www.lcsc.com/product-detail/C8963.html
+12.288MHz Oscillator (2.0x1.6mm),4,0.62,2.5,https://www.lcsc.com/product-detail/C2901609.html
+LM4810 (TSSOP-8),4,0.87,3.48,https://www.lcsc.com/product-detail/C2864060.html
+ES9023P (SOP-16),4,1.505,6.02,https://www.lcsc.com/product-detail/C2760388.html
+FST-1230 (Buzzer),4,0.4646,1.86,https://lcsc.com/product-detail/Buzzers_FST-FST-1230_C391037.html
+GH39FKSW (SOT-23-3 sensor),128,0.108,14.62,https://www.lcsc.com/product-detail/C266230.html
+SK6812MINI E,180,0.06,11.48,https://www.lcsc.com/product-detail/C5149201.html
+,,,,
+LCSC Merchandise Subtotal,,,,106.30
+LCSC Shipping Estimate,,,,14.73
+LCSC Taxes Buffer,,,,8.00
+LCSC Total,,,,128.03
+,,,,
+Hall Effect Keyswitches (pack of 35),4,12.99,52.00,https://www.amazon.com/dp/B0DWXNQ65W
+Black 1U Keycaps (pack of 24),2,8.99,18.00,https://www.amazon.com/Mechkeeb-Profile-Switches-Keyboard-Replacement/dp/B0BWDQ3NKK
+White 1U Keycaps (pack of 24),4,8.99,36.00,https://www.amazon.com/Mechkeeb-Profile-Switches-Keyboard-Replacement/dp/B0BWDTBF1L
+,,,,
+External Merchandise Subtotal,,,,106.00
+External Shipping Estimate,,,,0.00
+External Taxes Buffer,,,,8.00
+External Total,,,,114.00
+,,,,
+JLCPCB Main Board Fabrication,5,,,42.20
+JLCPCB Connectors Fabrication,,,,2.00
+JLCPCB Stencil,1,,,7.00
+JLCPCB Shipping Estimate,,,,33.00
+JLCPCB Taxes Buffer,,,,3.00
+JLCPCB Total,,,,87.20
+,,,,
+Grand Total,,,,329.23
