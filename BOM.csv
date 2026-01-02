@@ -55,10 +55,11 @@ External Taxes Buffer,,,,8.00
 External Total,,,,114.00
 ,,,,
 JLCPCB Main Board Fabrication,5,,,42.20
-JLCPCB Connectors Fabrication,,,,2.00
 JLCPCB Stencil,1,,,7.00
-JLCPCB Shipping Estimate,,,,33.00
+JLCPCB Shipping Estimate,,,,30.00
+JLCPCB Connectors Fabrication,,,,2.00
+JLCPCB Connectors Shipping Estimate,,,,8.00
 JLCPCB Taxes Buffer,,,,3.00
-JLCPCB Total,,,,87.20
+JLCPCB Total,,,,92.20
 ,,,,
-Grand Total,,,,329.23
+Grand Total,,,,334.23
