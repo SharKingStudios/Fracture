@@ -2,6 +2,8 @@
 
 ### A modular, glowing wall of keys with its own brain, synth, and buzzer per board.
 
+![Irl Picture](./Renders/irl.png)
+
 ---
 
 ## Renders  
