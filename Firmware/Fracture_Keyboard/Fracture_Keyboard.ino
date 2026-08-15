@@ -35,25 +35,43 @@
 */
 
 #include <Arduino.h>
+#if defined(ARDUINO_ARCH_ESP32) && __has_include(<esp_arduino_version.h>)
+#include <esp_arduino_version.h>
+#endif
+#if defined(ARDUINO_ARCH_ESP32) && __has_include(<soc/soc_caps.h>)
+#include <soc/soc_caps.h>
+#endif
 #include <Adafruit_NeoPixel.h>
 #include <driver/i2s.h>
 #include <HardwareSerial.h>
 #include <math.h>
 #include "driver/gpio.h"
+#include "FractureSongSystem.h"
 #if defined(ARDUINO_ARCH_ESP32) && defined(SOC_USB_OTG_SUPPORTED) && SOC_USB_OTG_SUPPORTED && defined(ARDUINO_USB_MODE) && !ARDUINO_USB_MODE
 #include "USB.h"
-#include "USBMIDI.h"
-#if CONFIG_TINYUSB_MIDI_ENABLED
+#include <USBMIDI.h>
+#if defined(CONFIG_TINYUSB_MIDI_ENABLED) && CONFIG_TINYUSB_MIDI_ENABLED
+#define FRACTURE_USB_DEVICE_ENABLED 1
 #define FRACTURE_USB_MIDI_ENABLED 1
 #else
-#define FRACTURE_USB_MIDI_ENABLED 0
+#error "Fracture requires TinyUSB MIDI support in the selected ESP32 board configuration."
 #endif
 #else
+#define FRACTURE_USB_DEVICE_ENABLED 0
 #define FRACTURE_USB_MIDI_ENABLED 0
 #endif
 
 #if defined(ARDUINO_USB_MODE) && ARDUINO_USB_MODE
-#warning "USB MIDI is disabled unless Tools > USB Mode is set to USB-OTG (TinyUSB)."
+#error "Set Tools > USB Mode to USB-OTG (TinyUSB) for Fracture MIDI."
+#endif
+#if defined(ARDUINO_USB_CDC_ON_BOOT) && ARDUINO_USB_CDC_ON_BOOT
+#error "Disable USB CDC On Boot; it starts TinyUSB before Fracture can select MIDI and song-loader MSC."
+#endif
+#if defined(ARDUINO_USB_MSC_ON_BOOT) && ARDUINO_USB_MSC_ON_BOOT
+#error "Disable USB Firmware MSC On Boot; Fracture supplies its own song-loader MSC."
+#endif
+#if defined(ARDUINO_USB_DFU_ON_BOOT) && ARDUINO_USB_DFU_ON_BOOT
+#error "Disable USB DFU On Boot; Fracture must be the first code to start TinyUSB."
 #endif
 
 #ifndef FRACTURE_ENABLE_I2S_AUDIO
@@ -130,9 +148,22 @@ const uint8_t  RS485_NOTE_MSG          = 0x02; // nodeId + note + vel + on/off
 const uint8_t  RS485_PING_MSG          = 0x03; // ping sequence
 const uint8_t  RS485_PING_REPLY_MSG    = 0x04; // nodeId + seq
 const uint8_t  RS485_REMAP_REQUEST_MSG = 0x05; // trigger re-discovery
+const uint8_t  RS485_CONTROL_MSG       = 0x06; // nodeId + command + value
+const uint8_t  RS485_REMAP_FINAL_MSG   = 0x07; // generation + board count
+
+const uint8_t  CONTROL_BUZZER_ENABLED  = 0x01;
+const uint8_t  CONTROL_OCTAVE_OFFSET   = 0x02;
+const uint8_t  CONTROL_AUDIO_ENABLED   = 0x03;
+const uint8_t  CONTROL_SIGNED_BIAS     = 64;
 
 // Discovery / mapping
 const uint32_t DISCOVERY_MAX_MS        = 1000; // total time budget for chain setup
+const uint32_t REMAP_VISUAL_MS         = 900;  // visible refresh flash after discovery
+const uint32_t DISCOVERY_NEIGHBOR_SETTLE_MS = 35; // hold neighbor detect state long enough to synchronize
+const uint32_t DISCOVERY_RETRY_MS      = 80;   // repeat the left-to-right discovery token
+const uint32_t DISCOVERY_PARENT_ANNOUNCE_MS = 30; // announce-to-pulse pairing window
+const uint32_t REMAP_START_DELAY_MS   = 140;  // let every board enter refresh before discovery
+const uint8_t  REMAP_REQUEST_REPEATS  = 3;
 
 // Velocity sensing
 const uint16_t VELOCITY_ON_DELTA     = 80;    // change from baseline to detect press start
@@ -158,10 +189,18 @@ const float MASTER_VOLUME = 0.4f;
 const uint8_t  BUZZER_PWM_RESOLUTION = 10;
 const uint16_t BUZZER_PWM_DUTY = 256;               // 25% duty is less harsh than 50%
 const int8_t   BUZZER_NOTE_TRANSPOSE = 12;          // small buzzers speak cleaner one octave up
+const uint8_t  BUZZER_PWM_CHANNEL = 0;               // Arduino-ESP32 2.x LEDC channel
+const int8_t   OCTAVE_SHIFT_MIN = -4;                // C3 down to MIDI note 0
+const int8_t   OCTAVE_SHIFT_MAX = 4;                 // one-board upper limit
 
 // Encoder
-const int32_t ENCODER_MIN = 0;
-const int32_t ENCODER_MAX = 127;
+const int8_t ENCODER_EDGES_PER_DETENT = 2;           // EC11E: 9 pulses / 18 detents
+
+#if defined(ESP_ARDUINO_VERSION_MAJOR) && ESP_ARDUINO_VERSION_MAJOR >= 3
+#define FRACTURE_LEDC_PIN_API 1
+#else
+#define FRACTURE_LEDC_PIN_API 0
+#endif
 
 // Ping / remap
 const uint32_t PING_INTERVAL_MS = 1000;
@@ -173,7 +212,8 @@ const uint8_t MAX_RIPPLES = 8;
 const uint8_t STATUS_ROWS = 4;
 const uint8_t STATUS_COLS = 3;
 const uint16_t STATUS_FIRST_LED = 32;
-const uint32_t STATUS_FADE_MS = 220;
+const uint32_t STATUS_FADE_MS = 147;
+const uint8_t STATUS_DISPLAY_BRIGHTNESS_SCALE = 128;
 
 // ========================= TYPES & STRUCTS =========================
 
@@ -204,6 +244,7 @@ struct KeyState {
   uint8_t  belowCount = 0;
   uint32_t pressStartUs = 0;
   uint8_t  velocity = 0;
+  uint8_t  activeNote = 0;
 };
 
 struct Voice {
@@ -237,20 +278,26 @@ struct RxState {
 
 void onLocalNoteOn(uint8_t note, uint8_t velocity);
 void onLocalNoteOff(uint8_t note);
-void onRemoteNoteOn(uint8_t note, uint8_t velocity);
+void onRemoteNoteOn(uint8_t note, uint8_t velocity, uint8_t sourceBoard);
 void onRemoteNoteOff(uint8_t note);
 void handleExtraKeyPressed(uint8_t extraIndex);
 void rs485SendPacket(uint8_t type, const uint8_t *payload, uint8_t len);
 void startDiscovery(bool fromRemap);
+void renderLeds();
+void buzzerApplySelectedNote();
+void buzzerStopAllInternal();
+void setSharedBuzzerEnabled(bool enabled, bool broadcast);
+void setSharedOctave(int8_t octave, bool broadcast);
+void broadcastSharedState();
 uint8_t midiNoteToBoardOffset(uint8_t note);
 
 // ========================= GLOBALS =================================
 
 Adafruit_NeoPixel leds(NUM_LEDS, PIN_LED_DATA, NEO_GRB + NEO_KHZ800);
 
-// USB MIDI via ESP32 TinyUSB. Requires Tools > USB Mode = USB-OTG (TinyUSB).
+// Register MIDI before setup so TinyUSB always sees it before USB.begin().
 #if FRACTURE_USB_MIDI_ENABLED
-USBMIDI usb_midi("Fracture Keyboard");
+USBMIDI usbMidi("Fracture Keyboard");
 #endif
 
 // Key definitions
@@ -275,12 +322,19 @@ NodeList nodeList;
 uint8_t myBoardIndex = 0;
 uint8_t totalBoards = 1;
 bool discoveryDone = false;
-bool remapRequested = false;
+bool remapScheduled = false;
+uint32_t remapStartAtMs = 0;
+uint16_t currentRemapToken = 0;
+uint16_t lastCompletedRemapToken = 0xFFFF;
+uint16_t localRemapCounter = 0;
+uint8_t lastDiscoveryAnnounceIndex = 0xFF;
+uint32_t lastDiscoveryAnnounceMs = 0;
 
 // Network state
 bool isRemapping     = false;
 bool networkHealthy  = false;
 uint32_t lastMainKeyActivityMs = 0;
+uint32_t networkRefreshEffectUntilMs = 0;
 char statusGlyphCurrent = 0;
 char statusGlyphPrevious = 0;
 uint32_t statusGlyphTransitionMs = 0;
@@ -288,14 +342,17 @@ uint32_t statusGlyphColor = 0;
 uint32_t statusGlyphPreviousColor = 0;
 
 // Note mapping
-uint8_t boardBaseNote = GLOBAL_BASE_NOTE;
+int16_t boardBaseNote = GLOBAL_BASE_NOTE;
+int8_t octaveOffset = 0; // shared semitone mapping in one-octave steps
 
 // Synth (I2S)
 Voice voices[MAX_VOICES];
 
 // Encoder
-volatile int32_t encoderValue = 64;
+volatile int16_t encoderPendingEdges = 0;
+int16_t encoderEdgeAccumulator = 0;
 uint8_t encoderLastState = 0;
+uint8_t encoderLastRoute = 0;
 
 // Modes
 bool buzzerEnabled = false;
@@ -324,14 +381,11 @@ bool pingReceived[RS485_MAX_NODES];
 bool buzzerPwmReady = false;
 uint8_t buzzerNoteCount[128];
 uint32_t buzzerNoteOrder[128];
+uint8_t buzzerNoteSourceBoard[128];
 uint32_t buzzerOrderCounter = 0;
 portMUX_TYPE buzzerMux = portMUX_INITIALIZER_UNLOCKED;
 
 // ========================= UTILITY HELPERS =========================
-
-uint32_t readRandom32() {
-  return ((uint32_t)esp_random());
-}
 
 void bootLog(const char *message) {
   Serial.println(message);
@@ -342,9 +396,116 @@ float midiNoteToFreq(uint8_t note) {
   return 440.0f * powf(2.0f, ((float)note - 69.0f) / 12.0f);
 }
 
+int8_t minSharedOctave() {
+  return OCTAVE_SHIFT_MIN;
+}
+
+int8_t maxSharedOctave() {
+  int8_t span = totalBoards == 0 ? 1 : (int8_t)totalBoards;
+  int8_t maxOctave = OCTAVE_SHIFT_MAX - 2 * (span - 1);
+  return maxOctave < OCTAVE_SHIFT_MIN ? OCTAVE_SHIFT_MIN : maxOctave;
+}
+
+int8_t clampOctave(int8_t octave) {
+  int8_t minimum = minSharedOctave();
+  int8_t maximum = maxSharedOctave();
+  if (octave < minimum) return minimum;
+  if (octave > maximum) return maximum;
+  return octave;
+}
+
+void updateBoardBaseNote() {
+  uint8_t index = (myBoardIndex == 0xFF) ? 0 : myBoardIndex;
+  boardBaseNote = (int16_t)GLOBAL_BASE_NOTE +
+                  (int16_t)octaveOffset * 12 + (int16_t)index * BOARD_NOTE_SPAN;
+}
+
+bool applyOctaveLocal(int8_t octave) {
+  int8_t clamped = clampOctave(octave);
+  bool changed = clamped != octaveOffset;
+  octaveOffset = clamped;
+  updateBoardBaseNote();
+  return changed;
+}
+
+uint8_t localNoteForMainKey(uint8_t keyIndex) {
+  int16_t note = boardBaseNote + keyToNote[keyIndex];
+  if (note < 0) return 0;
+  if (note > 127) return 127;
+  return (uint8_t)note;
+}
+
+void triggerNetworkRefreshEffect() {
+  networkRefreshEffectUntilMs = millis() + REMAP_VISUAL_MS;
+}
+
+void finishNetworkRefreshVisual() {
+  networkRefreshEffectUntilMs = 0;
+  statusGlyphCurrent = 0;
+  statusGlyphPrevious = 0;
+  statusGlyphTransitionMs = 0;
+}
+
+void scheduleNetworkRemap(uint16_t token) {
+  if (discoveryDone && token == lastCompletedRemapToken) return;
+  if (token == currentRemapToken && (remapScheduled || isRemapping)) return;
+  currentRemapToken = token;
+  remapScheduled = true;
+  remapStartAtMs = millis() + REMAP_START_DELAY_MS;
+  isRemapping = true;
+  networkHealthy = false;
+  triggerNetworkRefreshEffect();
+}
+
+void requestNetworkRemap() {
+  uint16_t token = (uint16_t)(++localRemapCounter ^ (uint16_t)millis() ^
+                              (uint16_t)(myNodeId >> 16));
+  if (token == lastCompletedRemapToken) ++token;
+  scheduleNetworkRemap(token);
+
+  uint8_t payload[6];
+  payload[0] = myNodeId & 0xFF;
+  payload[1] = (myNodeId >> 8) & 0xFF;
+  payload[2] = (myNodeId >> 16) & 0xFF;
+  payload[3] = (myNodeId >> 24) & 0xFF;
+  payload[4] = token & 0xFF;
+  payload[5] = (token >> 8) & 0xFF;
+  for (uint8_t attempt = 0; attempt < REMAP_REQUEST_REPEATS; ++attempt) {
+    rs485SendPacket(RS485_REMAP_REQUEST_MSG, payload, sizeof(payload));
+    if (attempt + 1 < REMAP_REQUEST_REPEATS) delay(4);
+  }
+}
+
+bool buzzerPwmAttach(uint8_t pin, uint32_t freq, uint8_t resolution) {
+#if FRACTURE_LEDC_PIN_API
+  return ledcAttach(pin, freq, resolution);
+#else
+  if (ledcSetup(BUZZER_PWM_CHANNEL, freq, resolution) <= 0) return false;
+  ledcAttachPin(pin, BUZZER_PWM_CHANNEL);
+  return true;
+#endif
+}
+
+void buzzerPwmWrite(uint32_t duty) {
+#if FRACTURE_LEDC_PIN_API
+  ledcWrite(PIN_BUZZER, duty);
+#else
+  ledcWrite(BUZZER_PWM_CHANNEL, duty);
+#endif
+}
+
+void buzzerPwmChangeFrequency(uint32_t freq) {
+#if FRACTURE_LEDC_PIN_API
+  ledcChangeFrequency(PIN_BUZZER, freq, BUZZER_PWM_RESOLUTION);
+#else
+  ledcChangeFrequency(BUZZER_PWM_CHANNEL, freq, BUZZER_PWM_RESOLUTION);
+#endif
+}
+
 // Given a note, find local main key index that maps to it, or 0xFF if not on this board
 uint8_t keyIndexFromNote(uint8_t note) {
-  uint8_t offset = note - boardBaseNote;
+  int16_t offset = (int16_t)note - boardBaseNote;
+  if (offset < 0 || offset >= BOARD_NOTE_SPAN) return 0xFF;
   for (uint8_t i = 0; i < NUM_MAIN_KEYS; i++) {
     if (keyToNote[i] == offset) return i;
   }
@@ -425,6 +586,7 @@ void calibrateKeys() {
     keyStates[k].velocityComputed = false;
     keyStates[k].extraHandled = false;
     keyStates[k].extraSuppressed = false;
+    keyStates[k].activeNote = 0;
     keyStates[k].aboveCount = 0;
     keyStates[k].belowCount = 0;
   }
@@ -455,6 +617,23 @@ bool anyMainKeyActive() {
 
 bool settingsChangesAllowed() {
   return !anyMainKeyActive() && (millis() - lastMainKeyActivityMs) >= SETTINGS_AFTER_KEYS_COOLDOWN_MS;
+}
+
+bool songModeImmediateExtraKey(uint8_t keyIndex) {
+  if (!FractureSongs::isActive() || keyIndex < NUM_MAIN_KEYS) return false;
+  uint8_t extraIndex = keyIndex - NUM_MAIN_KEYS;
+  return extraIndex == 0 || extraIndex >= 6;
+}
+
+uint32_t extraKeyHoldUs(uint8_t keyIndex) {
+  (void)keyIndex;
+  return FractureSongs::isActive() ? (AUX_HOLD_US / 2) : AUX_HOLD_US;
+}
+
+bool extraKeyActionAllowed(uint8_t keyIndex) {
+  if (FractureSongs::isActive()) return true;
+  if (songModeImmediateExtraKey(keyIndex)) return true;
+  return settingsChangesAllowed();
 }
 
 void scanKeys() {
@@ -497,7 +676,7 @@ void scanKeys() {
       st.pressed = true;
       st.velocityComputed = false;
       if (def.isExtra) {
-        st.extraSuppressed = !settingsChangesAllowed();
+        st.extraSuppressed = !extraKeyActionAllowed(k);
       }
     }
 
@@ -510,15 +689,17 @@ void scanKeys() {
       if (def.isExtra) {
         setKeyLedBase(k, st.velocity, true);
       } else {
-        uint8_t note = boardBaseNote + keyToNote[k];
+        uint8_t note = localNoteForMainKey(k);
         uint8_t vel = st.velocity;
         if (vel == 0) vel = 1;
+        st.activeNote = note;
         onLocalNoteOn(note, vel);
       }
     }
 
     if (def.isExtra && st.pressed && st.velocityComputed && !st.extraHandled &&
-        (nowUs - st.pressStartUs) >= AUX_HOLD_US && !st.extraSuppressed && settingsChangesAllowed()) {
+        (songModeImmediateExtraKey(k) || (nowUs - st.pressStartUs) >= extraKeyHoldUs(k)) &&
+        !st.extraSuppressed && extraKeyActionAllowed(k)) {
       uint8_t extraIndex = k - NUM_MAIN_KEYS;
       handleExtraKeyPressed(extraIndex);
       st.extraHandled = true;
@@ -529,8 +710,9 @@ void scanKeys() {
         if (def.isExtra) {
           setKeyLedBase(k, 0, false);
         } else {
-          uint8_t note = boardBaseNote + keyToNote[k];
+          uint8_t note = st.activeNote;
           onLocalNoteOff(note);
+          st.activeNote = 0;
         }
       }
       st.pressed = false;
@@ -733,10 +915,12 @@ uint16_t statusGlyphMask(char glyph) {
 }
 
 char octaveStatusGlyph() {
-  int16_t discoveredBase = GLOBAL_BASE_NOTE + myBoardIndex * BOARD_NOTE_SPAN;
-  int8_t octaveShift = (int8_t)((int16_t)boardBaseNote - discoveredBase) / 12;
-  if (octaveShift < 0) return 'L';
-  if (octaveShift <= 9) return (char)('0' + octaveShift);
+  int16_t displayedOctave = (int16_t)GLOBAL_BASE_NOTE / 12 - 1 + octaveOffset;
+  if (myBoardIndex != 0xFF) {
+    displayedOctave += (int16_t)myBoardIndex * 2;
+  }
+  if (displayedOctave < 0) return 'L';
+  if (displayedOctave <= 9) return (char)('0' + displayedOctave);
   return 'A';
 }
 
@@ -749,11 +933,12 @@ uint32_t scaleColor(uint32_t color, uint8_t scale) {
 
 void drawStatusGlyph(char glyph, uint32_t color) {
   uint16_t mask = statusGlyphMask(glyph);
+  uint32_t displayColor = scaleColor(color, STATUS_DISPLAY_BRIGHTNESS_SCALE);
   for (uint8_t row = 0; row < STATUS_ROWS; row++) {
     for (uint8_t col = 0; col < STATUS_COLS; col++) {
       uint8_t bit = row * STATUS_COLS + col;
       if (mask & (1 << (11 - bit))) {
-        leds.setPixelColor(statusLedIndex(row, col), color);
+        leds.setPixelColor(statusLedIndex(row, col), displayColor);
       }
     }
   }
@@ -764,13 +949,30 @@ void updateStatusLeds() {
     leds.setPixelColor(STATUS_FIRST_LED + i, 0);
   }
 
-  char target = octaveStatusGlyph();
-  uint32_t targetColor = buzzerEnabled ? leds.Color(40, 18, 0) : leds.Color(0, 35, 45);
-  if (!networkHealthy) targetColor = leds.Color(30, 30, 0);
-  if (audioEnabled) targetColor = leds.Color(10, 20, 55);
-
   uint32_t nowMs = millis();
-  if (statusGlyphCurrent == 0) {
+  bool refreshActive = isRemapping || nowMs < networkRefreshEffectUntilMs;
+  char songGlyph = FractureSongs::statusGlyph();
+  bool songStatus = FractureSongs::isActive() && songGlyph != 0;
+  char target = refreshActive ? 'R' : (songStatus ? songGlyph : octaveStatusGlyph());
+  uint32_t targetColor = buzzerEnabled ? leds.Color(40, 18, 0) : leds.Color(0, 35, 45);
+  uint8_t songRed = 0;
+  uint8_t songGreen = 0;
+  uint8_t songBlue = 0;
+  if (songStatus && FractureSongs::statusColor(songRed, songGreen, songBlue)) {
+    targetColor = leds.Color(songRed, songGreen, songBlue);
+  } else {
+    if (!networkHealthy) targetColor = leds.Color(30, 30, 0);
+    if (audioEnabled) targetColor = leds.Color(10, 20, 55);
+  }
+  if (refreshActive) targetColor = leds.Color(75, 65, 0);
+
+  bool immediateGlyph = refreshActive || songStatus;
+  if (immediateGlyph) {
+    statusGlyphCurrent = target;
+    statusGlyphColor = targetColor;
+    statusGlyphPrevious = 0;
+    statusGlyphTransitionMs = 0;
+  } else if (statusGlyphCurrent == 0) {
     statusGlyphCurrent = target;
     statusGlyphColor = targetColor;
   } else if (target != statusGlyphCurrent || targetColor != statusGlyphColor) {
@@ -873,6 +1075,18 @@ void renderLeds() {
       b = min<uint16_t>(255, b + amount);
     }
 
+    if (mainKeyIndex >= 0) {
+      uint8_t midiNote = localNoteForMainKey((uint8_t)mainKeyIndex);
+      uint16_t globalPosition = (uint16_t)myBoardIndex * BOARD_NOTE_SPAN +
+                                keyToNote[mainKeyIndex];
+      FractureSongs::keyOverlay(midiNote, globalPosition, r, g, b);
+    } else {
+      uint8_t switchNumber = physicalSwitchForLedIndex(k);
+      if (switchNumber >= 1 && switchNumber <= NUM_EXTRA_KEYS) {
+        FractureSongs::buttonOverlay(switchNumber - 1, r, g, b);
+      }
+    }
+
     leds.setPixelColor(k, leds.Color(r, g, b));
   }
 
@@ -881,22 +1095,30 @@ void renderLeds() {
 
   // Top-left LED (index 44)
   uint8_t topIndex = 44;
-  if (isRemapping) {
-    // Yellow while remapping
-    leds.setPixelColor(topIndex, leds.Color(80, 80, 0));
-  } else if (networkHealthy) {
-    // Light green pulse when healthy
-    float phase = (nowMs % 2000) / 2000.0f * 2.0f * PI;
-    float t = (sinf(phase) + 1.0f) * 0.5f; // 0..1
-    uint8_t g = (uint8_t)(30 + t * 80);    // 30..110
-    uint8_t r = 5;
-    uint8_t b = 5;
-    leds.setPixelColor(topIndex, leds.Color(r, g, b));
+  if (isRemapping || nowMs < networkRefreshEffectUntilMs) {
+    float phase = (nowMs % 280) / 280.0f * 2.0f * PI;
+    float t = (sinf(phase) + 1.0f) * 0.5f;
+    uint8_t level = (uint8_t)(55 + t * 80);
+    leds.setPixelColor(topIndex, leds.Color(level, level, 0));
   } else {
-    // Off when not healthy / unknown
-    leds.setPixelColor(topIndex, 0);
+    uint8_t songRed = 0;
+    uint8_t songGreen = 0;
+    uint8_t songBlue = 0;
+    if (FractureSongs::topLedOverlay(songRed, songGreen, songBlue)) {
+      leds.setPixelColor(topIndex, leds.Color(songRed, songGreen, songBlue));
+    } else if (networkHealthy) {
+      // Light green pulse when healthy
+      float phase = (nowMs % 2000) / 2000.0f * 2.0f * PI;
+      float t = (sinf(phase) + 1.0f) * 0.5f; // 0..1
+      uint8_t g = (uint8_t)(30 + t * 80);    // 30..110
+      uint8_t r = 5;
+      uint8_t b = 5;
+      leds.setPixelColor(topIndex, leds.Color(r, g, b));
+    } else {
+      // Off when not healthy / unknown
+      leds.setPixelColor(topIndex, 0);
+    }
   }
-
   leds.show();
 }
 void showAllLedsStartup() {
@@ -937,21 +1159,88 @@ uint8_t buzzerSelectNewestActiveNote() {
   return selectedNote;
 }
 
+uint8_t buzzerSelectAssignedActiveNote() {
+  if (!discoveryDone || totalBoards <= 1 || myBoardIndex == 0xFF) {
+    return buzzerSelectNewestActiveNote();
+  }
+
+  uint8_t slotCount = totalBoards;
+  if (slotCount > RS485_MAX_NODES) slotCount = RS485_MAX_NODES;
+  uint8_t boardSlot = myBoardIndex % slotCount;
+  uint8_t assigned[RS485_MAX_NODES];
+  for (uint8_t i = 0; i < RS485_MAX_NODES; i++) {
+    assigned[i] = 0xFF;
+  }
+
+  uint32_t lastOrder = 0;
+
+  while (true) {
+    uint8_t bestNote = 0xFF;
+    uint32_t bestOrder = 0xFFFFFFFFUL;
+
+    for (uint8_t note = 0; note < 128; note++) {
+      uint32_t order = buzzerNoteOrder[note];
+      if (buzzerNoteCount[note] > 0 && order > lastOrder && order < bestOrder) {
+        bestOrder = order;
+        bestNote = note;
+      }
+    }
+
+    if (bestNote == 0xFF) break;
+
+    uint8_t preferredSlot = buzzerNoteSourceBoard[bestNote];
+    if (preferredSlot == 0xFF || preferredSlot >= slotCount) {
+      preferredSlot = boardSlot;
+    }
+
+    uint8_t targetSlot = preferredSlot;
+    if (assigned[targetSlot] != 0xFF) {
+      uint8_t closestFreeSlot = 0xFF;
+      uint8_t closestDistance = 0xFF;
+
+      // Boards form a line, so spill a new note to the nearest available
+      // physical neighbor instead of wrapping around the chain.
+      for (uint8_t candidate = 0; candidate < slotCount; candidate++) {
+        if (assigned[candidate] == 0xFF) {
+          uint8_t distance = (candidate > preferredSlot)
+            ? candidate - preferredSlot
+            : preferredSlot - candidate;
+          if (distance > 0 && distance < closestDistance) {
+            closestDistance = distance;
+            closestFreeSlot = candidate;
+          }
+        }
+      }
+
+      // No buzzer is free: the newest note replaces the older note on its
+      // source board. That keeps the takeover local to the new key press.
+      if (closestFreeSlot != 0xFF) {
+        targetSlot = closestFreeSlot;
+      }
+    }
+
+    assigned[targetSlot] = bestNote;
+    lastOrder = bestOrder;
+  }
+
+  return assigned[boardSlot];
+}
+
 void buzzerApplySelectedNote() {
   if (!buzzerPwmReady) return;
 
-  uint8_t note = buzzerSelectNewestActiveNote();
+  uint8_t note = buzzerSelectAssignedActiveNote();
   if (note == 0xFF) {
-    ledcWrite(PIN_BUZZER, 0);
+    buzzerPwmWrite(0);
     return;
   }
 
   uint32_t freq = buzzerFrequencyForNote(note);
-  ledcChangeFrequency(PIN_BUZZER, freq, BUZZER_PWM_RESOLUTION);
-  ledcWrite(PIN_BUZZER, BUZZER_PWM_DUTY);
+  buzzerPwmChangeFrequency(freq);
+  buzzerPwmWrite(BUZZER_PWM_DUTY);
 }
 
-void buzzerStartNoteInternal(uint8_t note) {
+void buzzerStartNoteInternal(uint8_t note, uint8_t sourceBoard) {
   if (note >= 128) return;
 
   if (buzzerNoteCount[note] < 255) {
@@ -960,6 +1249,7 @@ void buzzerStartNoteInternal(uint8_t note) {
   buzzerOrderCounter++;
   if (buzzerOrderCounter == 0) buzzerOrderCounter = 1;
   buzzerNoteOrder[note] = buzzerOrderCounter;
+  buzzerNoteSourceBoard[note] = sourceBoard;
 
   buzzerApplySelectedNote();
 }
@@ -971,6 +1261,7 @@ void buzzerStopNoteInternal(uint8_t note) {
     buzzerNoteCount[note]--;
     if (buzzerNoteCount[note] == 0) {
       buzzerNoteOrder[note] = 0;
+      buzzerNoteSourceBoard[note] = 0xFF;
     }
   }
 
@@ -981,19 +1272,25 @@ void buzzerStopAllInternal() {
   for (uint8_t note = 0; note < 128; note++) {
     buzzerNoteCount[note] = 0;
     buzzerNoteOrder[note] = 0;
+    buzzerNoteSourceBoard[note] = 0xFF;
   }
   buzzerApplySelectedNote();
 }
 
 // Keyboard-level buzzer handlers (respect buzzerEnabled)
-void buzzerNoteOn(uint8_t note, uint8_t velocity) {
+void buzzerNoteOnFromBoard(uint8_t note, uint8_t velocity, uint8_t sourceBoard) {
   (void)velocity;
 #if !FRACTURE_ENABLE_BUZZER_SYNTH
   (void)note;
+  (void)sourceBoard;
   return;
 #endif
   if (!buzzerEnabled) return;
-  buzzerStartNoteInternal(note);
+  buzzerStartNoteInternal(note, sourceBoard);
+}
+
+void buzzerNoteOn(uint8_t note, uint8_t velocity) {
+  buzzerNoteOnFromBoard(note, velocity, myBoardIndex);
 }
 
 void buzzerNoteOff(uint8_t note) {
@@ -1022,7 +1319,7 @@ void playStartupJingle() {
   buzzerEnabled = true;
 
   for (uint8_t i = 0; i < sizeof(notes); i++) {
-    buzzerStartNoteInternal(notes[i]);
+    buzzerStartNoteInternal(notes[i], myBoardIndex);
     delay(durMs[i]);
     buzzerStopNoteInternal(notes[i]);
     delay(20);
@@ -1039,6 +1336,7 @@ void rs485SetTx(bool tx) {
 }
 
 void rs485SendPacket(uint8_t type, const uint8_t *payload, uint8_t len) {
+  if (len > sizeof(rx.buf) || (len > 0 && payload == nullptr)) return;
   uint8_t checksum = type ^ len;
   rs485SetTx(true);
   RS485.write(0xAA);
@@ -1053,6 +1351,83 @@ void rs485SendPacket(uint8_t type, const uint8_t *payload, uint8_t len) {
   rs485SetTx(false);
 }
 
+void sendSharedControl(uint8_t command, uint8_t value) {
+  uint8_t payload[6];
+  payload[0] = (myNodeId & 0xFF);
+  payload[1] = (myNodeId >> 8) & 0xFF;
+  payload[2] = (myNodeId >> 16) & 0xFF;
+  payload[3] = (myNodeId >> 24) & 0xFF;
+  payload[4] = command;
+  payload[5] = value;
+  rs485SendPacket(RS485_CONTROL_MSG, payload, sizeof(payload));
+  delay(2);
+  rs485SendPacket(RS485_CONTROL_MSG, payload, sizeof(payload));
+}
+
+void applySharedBuzzerEnabled(bool enabled) {
+#if FRACTURE_ENABLE_BUZZER_SYNTH
+  buzzerEnabled = enabled;
+  if (!buzzerEnabled) {
+    buzzerStopAllInternal();
+  } else {
+    buzzerApplySelectedNote();
+  }
+#else
+  (void)enabled;
+  buzzerEnabled = false;
+#endif
+}
+
+void setSharedBuzzerEnabled(bool enabled, bool broadcast) {
+  applySharedBuzzerEnabled(enabled);
+  if (broadcast) {
+    sendSharedControl(CONTROL_BUZZER_ENABLED, enabled ? 1 : 0);
+  }
+}
+
+void setSharedOctave(int8_t octave, bool broadcast) {
+  bool changed = applyOctaveLocal(octave);
+  if (broadcast && changed) {
+    sendSharedControl(CONTROL_OCTAVE_OFFSET, (uint8_t)(octaveOffset + CONTROL_SIGNED_BIAS));
+  }
+}
+
+void setSharedAudioEnabled(bool enabled, bool broadcast) {
+  audioEnabled = audioReady && enabled;
+  if (broadcast) {
+    sendSharedControl(CONTROL_AUDIO_ENABLED, audioEnabled ? 1 : 0);
+  }
+}
+
+void broadcastSharedState() {
+  sendSharedControl(CONTROL_BUZZER_ENABLED, buzzerEnabled ? 1 : 0);
+  delay(2);
+  sendSharedControl(CONTROL_OCTAVE_OFFSET, (uint8_t)(octaveOffset + CONTROL_SIGNED_BIAS));
+  delay(2);
+  sendSharedControl(CONTROL_AUDIO_ENABLED, audioEnabled ? 1 : 0);
+}
+
+void handleControlPacket(const uint8_t *payload, uint8_t len) {
+  if (len != 6) return;
+  uint32_t srcId = ((uint32_t)payload[0]) |
+                   ((uint32_t)payload[1] << 8) |
+                   ((uint32_t)payload[2] << 16) |
+                   ((uint32_t)payload[3] << 24);
+  uint8_t command = payload[4];
+  uint8_t value = payload[5];
+
+  if (srcId == myNodeId) return;
+
+  if (command == CONTROL_BUZZER_ENABLED) {
+    setSharedBuzzerEnabled(value != 0, false);
+  } else if (command == CONTROL_OCTAVE_OFFSET) {
+    setSharedOctave((int8_t)value - (int8_t)CONTROL_SIGNED_BIAS, false);
+  } else if (command == CONTROL_AUDIO_ENABLED) {
+    setSharedAudioEnabled(value != 0, false);
+  }
+}
+
+
 void registerNode(uint32_t nodeId, uint8_t boardIndex);
 
 void handleAnnouncePacket(const uint8_t *payload, uint8_t len) {
@@ -1063,7 +1438,21 @@ void handleAnnouncePacket(const uint8_t *payload, uint8_t len) {
                      ((uint32_t)payload[3] << 24);
   uint8_t otherIdx = payload[4];
   registerNode(otherId, otherIdx);
+  if (otherId != myNodeId) {
+    lastDiscoveryAnnounceIndex = otherIdx;
+    lastDiscoveryAnnounceMs = millis();
+  }
 }
+
+uint8_t boardIndexForNodeId(uint32_t nodeId) {
+  for (uint8_t i = 0; i < nodeList.count; i++) {
+    if (nodeList.nodes[i].nodeId == nodeId) {
+      return nodeList.nodes[i].boardIndex;
+    }
+  }
+  return 0xFF;
+}
+
 
 void handleNotePacket(const uint8_t *payload, uint8_t len) {
   if (len != 7) return;
@@ -1077,8 +1466,9 @@ void handleNotePacket(const uint8_t *payload, uint8_t len) {
 
   if (srcId == myNodeId) return;
 
+  uint8_t sourceBoard = boardIndexForNodeId(srcId);
   if (on) {
-    onRemoteNoteOn(note, vel);
+    onRemoteNoteOn(note, vel, sourceBoard);
   } else {
     onRemoteNoteOff(note);
   }
@@ -1094,6 +1484,8 @@ void handlePingPacket(const uint8_t *payload, uint8_t len) {
   reply[2] = (myNodeId >> 16) & 0xFF;
   reply[3] = (myNodeId >> 24) & 0xFF;
   reply[4] = seq;
+  // Give each board a short bus slot so replies do not collide on RS-485.
+  delay((uint32_t)myBoardIndex * 3);
   rs485SendPacket(RS485_PING_REPLY_MSG, reply, 5);
 }
 
@@ -1117,10 +1509,28 @@ void handlePingReplyPacket(const uint8_t *payload, uint8_t len) {
 }
 
 void handleRemapRequestPacket(const uint8_t *payload, uint8_t len) {
-  (void)payload;
-  (void)len;
-  remapRequested = true;
-  networkHealthy = false;
+  if (len != 6) return;
+  uint32_t sourceId = ((uint32_t)payload[0]) |
+                      ((uint32_t)payload[1] << 8) |
+                      ((uint32_t)payload[2] << 16) |
+                      ((uint32_t)payload[3] << 24);
+  if (sourceId == myNodeId) return;
+  uint16_t token = (uint16_t)payload[4] | ((uint16_t)payload[5] << 8);
+  scheduleNetworkRemap(token);
+}
+
+void handleRemapFinalPacket(const uint8_t *payload, uint8_t len) {
+  if (len != 3) return;
+  uint16_t token = (uint16_t)payload[0] | ((uint16_t)payload[1] << 8);
+  if (token != currentRemapToken) return;
+  totalBoards = payload[2] == 0 ? 1 : payload[2];
+  lastCompletedRemapToken = token;
+  remapScheduled = false;
+  isRemapping = false;
+  networkHealthy = true;
+  finishNetworkRefreshVisual();
+  applyOctaveLocal(octaveOffset);
+  FractureSongs::setTopology(myNodeId, myBoardIndex, totalBoards);
 }
 
 void processRs485() {
@@ -1136,12 +1546,12 @@ void processRs485() {
       case 1:
         rx.len = b;
         rx.pos = 0;
-        rx.state = 2;
+        rx.state = rx.len <= sizeof(rx.buf) ? 2 : 0;
         break;
       case 2:
         rx.type = b;
         rx.checksum = rx.type ^ rx.len;
-        rx.state = 3;
+        rx.state = rx.len == 0 ? 4 : 3;
         break;
       case 3:
         if (rx.pos < sizeof(rx.buf)) {
@@ -1164,6 +1574,12 @@ void processRs485() {
             handlePingReplyPacket(rx.buf, rx.len);
           } else if (rx.type == RS485_REMAP_REQUEST_MSG) {
             handleRemapRequestPacket(rx.buf, rx.len);
+          } else if (rx.type == RS485_CONTROL_MSG) {
+            handleControlPacket(rx.buf, rx.len);
+          } else if (rx.type == RS485_REMAP_FINAL_MSG) {
+            handleRemapFinalPacket(rx.buf, rx.len);
+          } else {
+            FractureSongs::handlePacket(rx.type, rx.buf, rx.len);
           }
         }
         rx.state = 0;
@@ -1230,12 +1646,10 @@ void registerNode(uint32_t nodeId, uint8_t boardIndex) {
     added = true;
   }
 
-  // New node after discovery: trigger remap from board 0
-  if (discoveryDone && added && myBoardIndex == 0) {
-    uint8_t dummy = 0;
-    rs485SendPacket(RS485_REMAP_REQUEST_MSG, &dummy, 0);
-    remapRequested = true;
-    networkHealthy = false;
+  // New node after discovery: trigger a synchronized remap from board 0.
+  if (discoveryDone && added && myBoardIndex == 0 && !isRemapping &&
+      !FractureSongs::blocksNetworkMaintenance()) {
+    requestNetworkRemap();
   }
 }
 
@@ -1243,7 +1657,7 @@ void registerNode(uint32_t nodeId, uint8_t boardIndex) {
 
 void midiSendNoteOn(uint8_t note, uint8_t velocity) {
 #if FRACTURE_USB_MIDI_ENABLED
-  usb_midi.noteOn(note, velocity, 1);
+  usbMidi.noteOn(note, velocity, 1);
 #else
   (void)note;
   (void)velocity;
@@ -1252,7 +1666,7 @@ void midiSendNoteOn(uint8_t note, uint8_t velocity) {
 
 void midiSendNoteOff(uint8_t note, uint8_t velocity) {
 #if FRACTURE_USB_MIDI_ENABLED
-  usb_midi.noteOff(note, velocity, 1);
+  usbMidi.noteOff(note, velocity, 1);
 #else
   (void)note;
   (void)velocity;
@@ -1389,6 +1803,7 @@ void onLocalNoteOn(uint8_t note, uint8_t velocity) {
     setKeyLedBase(keyIndex, velocity, true);
   }
   startRipple(note, velocity);
+  FractureSongs::localNoteOn(note);
 
   midiSendNoteOn(note, velocity);
   synthNoteOn(note, velocity);
@@ -1408,15 +1823,17 @@ void onLocalNoteOff(uint8_t note) {
   broadcastNoteEvent(note, 0, false);
 }
 
-void onRemoteNoteOn(uint8_t note, uint8_t velocity) {
+void onRemoteNoteOn(uint8_t note, uint8_t velocity, uint8_t sourceBoard) {
   uint8_t keyIndex = keyIndexFromNote(note);
   if (keyIndex != 0xFF) {
     setKeyLedBase(keyIndex, velocity, true);
   }
   startRipple(note, velocity);
+  FractureSongs::noteOn(note);
 
   midiSendNoteOn(note, velocity);
   synthNoteOn(note, velocity);
+  buzzerNoteOnFromBoard(note, velocity, sourceBoard);
 }
 
 void onRemoteNoteOff(uint8_t note) {
@@ -1427,6 +1844,7 @@ void onRemoteNoteOff(uint8_t note) {
 
   midiSendNoteOff(note, 0);
   synthNoteOff(note);
+  buzzerNoteOff(note);
 }
 
 // ========================= EXTRA KEYS / MODES ======================
@@ -1435,53 +1853,78 @@ void handleExtraKeyPressed(uint8_t extraIndex) {
 #if !FRACTURE_ENABLE_EXTRA_KEYS
 #if FRACTURE_ENABLE_BUZZER_SYNTH
   if (extraIndex == 0) {
-    buzzerEnabled = !buzzerEnabled;
-    if (!buzzerEnabled) {
-      buzzerStopAllInternal();
-    }
+    setSharedBuzzerEnabled(!buzzerEnabled, true);
   }
 #else
   (void)extraIndex;
 #endif
   return;
 #endif
+
+  if (FractureSongs::isActive()) {
+    switch (extraIndex) {
+      case 0: // S1: escape/back from song and USB loader modes
+        FractureSongs::back();
+        break;
+      case 1:
+        setSharedOctave(octaveOffset - 1, true);
+        break;
+      case 2:
+        setSharedOctave(octaveOffset + 1, true);
+        break;
+      case 3:
+        setSharedOctave(0, true);
+        break;
+      case 4: // S5: hold to reveal the selected song title while song mode is active
+        FractureSongs::showTitle();
+        break;
+      case 5: // S6 is intentionally inactive in song modes.
+        break;
+      case 6: // S7: previous song/browser item
+        FractureSongs::encoderDelta(-1);
+        break;
+      case 7: // S8: next song/browser item
+        FractureSongs::nextButton();
+        break;
+      default:
+        break;
+    }
+    return;
+  }
+
   if (!settingsChangesAllowed()) return;
 
   switch (extraIndex) {
     case 0: // S1: toggle buzzer
-      buzzerEnabled = !buzzerEnabled;
-      if (!buzzerEnabled) {
-        buzzerStopAllInternal();
-      }
+      setSharedBuzzerEnabled(!buzzerEnabled, true);
       break;
     case 1: // S2: octave down
-      boardBaseNote -= 12;
+      setSharedOctave(octaveOffset - 1, true);
       break;
     case 2: // S3: octave up
-      boardBaseNote += 12;
+      setSharedOctave(octaveOffset + 1, true);
       break;
-    case 3: // S4: reset octave shift
-      boardBaseNote = GLOBAL_BASE_NOTE + myBoardIndex * BOARD_NOTE_SPAN;
+    case 3: // S4: reset chain to the base octave
+      setSharedOctave(0, true);
       break;
     case 4: // S5: toggle audio
-      if (audioReady) {
-        audioEnabled = !audioEnabled;
-      }
+      if (audioReady) setSharedAudioEnabled(!audioEnabled, true);
       break;
-    case 5: { // S6: manual remap
-      uint8_t dummy = 0;
-      rs485SendPacket(RS485_REMAP_REQUEST_MSG, &dummy, 0);
-      remapRequested = true;
-      networkHealthy = false;
+    case 5: // S6: enter distributed song browser
+      noInterrupts();
+      encoderPendingEdges = 0;
+      interrupts();
+      encoderEdgeAccumulator = 0;
+      FractureSongs::enterBrowser();
       break;
-    }
-    case 6: // S7: reserved
-    case 7: // S8: reserved
+    case 6: // S7: refresh/reorder moved one button to the right
+      requestNetworkRemap();
+      break;
+    case 7: // S8: reserved in normal mode; next item while song mode is active
     default:
       break;
   }
 }
-
 // ========================= ENCODER ================================
 
 void IRAM_ATTR encoderISR() {
@@ -1492,14 +1935,13 @@ void IRAM_ATTR encoderISR() {
       (encoderLastState == 0b01 && state == 0b11) ||
       (encoderLastState == 0b11 && state == 0b10) ||
       (encoderLastState == 0b10 && state == 0b00)) {
-    encoderValue++;
+    if (encoderPendingEdges > INT16_MIN) --encoderPendingEdges;
   } else if ((encoderLastState == 0b00 && state == 0b10) ||
              (encoderLastState == 0b10 && state == 0b11) ||
              (encoderLastState == 0b11 && state == 0b01) ||
              (encoderLastState == 0b01 && state == 0b00)) {
-    encoderValue--;
+    if (encoderPendingEdges < INT16_MAX) ++encoderPendingEdges;
   }
-  encoderValue = constrain(encoderValue, ENCODER_MIN, ENCODER_MAX);
   encoderLastState = state;
 }
 
@@ -1513,22 +1955,54 @@ void encoderInit() {
   pinMode(PIN_ENC_SW, INPUT_PULLUP);
 }
 
-// Encoder button toggles buzzer mode
+// The encoder button keeps only electrical debounce; it is exempt from the
+// main-key accidental-press cooldown.
 void handleEncoderButton() {
   static bool prev = HIGH;
-  static uint32_t lastToggleMs = 0;
+  static uint32_t lastPressMs = 0;
   bool cur = digitalRead(PIN_ENC_SW);
   uint32_t nowMs = millis();
-  if (prev == HIGH && cur == LOW && (nowMs - lastToggleMs) >= 250 && settingsChangesAllowed()) {
+  if (prev == HIGH && cur == LOW && (nowMs - lastPressMs) >= 250) {
+    if (FractureSongs::isActive()) {
+      FractureSongs::confirm();
+    } else {
 #if FRACTURE_ENABLE_BUZZER_SYNTH
-    buzzerEnabled = !buzzerEnabled;
-    if (!buzzerEnabled) {
-      buzzerStopAllInternal();
-    }
+      setSharedBuzzerEnabled(!buzzerEnabled, true);
 #endif
-    lastToggleMs = nowMs;
+    }
+    lastPressMs = nowMs;
   }
   prev = cur;
+}
+
+void handleEncoderMovement() {
+  noInterrupts();
+  int16_t edges = encoderPendingEdges;
+  encoderPendingEdges = 0;
+  interrupts();
+
+  bool menuEncoder = FractureSongs::usesEncoderForMenu();
+  bool octaveEncoder = FractureSongs::usesEncoderForOctaves();
+  uint8_t route = menuEncoder ? 1 : (octaveEncoder ? 2 : 0);
+  if (route != encoderLastRoute) {
+    encoderLastRoute = route;
+    encoderEdgeAccumulator = 0;
+  }
+  if (route == 0) {
+    return;
+  }
+
+  encoderEdgeAccumulator += edges;
+  while (encoderEdgeAccumulator >= ENCODER_EDGES_PER_DETENT) {
+    encoderEdgeAccumulator -= ENCODER_EDGES_PER_DETENT;
+    if (menuEncoder) FractureSongs::encoderDelta(1);
+    else setSharedOctave(octaveOffset + 1, true);
+  }
+  while (encoderEdgeAccumulator <= -ENCODER_EDGES_PER_DETENT) {
+    encoderEdgeAccumulator += ENCODER_EDGES_PER_DETENT;
+    if (menuEncoder) FractureSongs::encoderDelta(-1);
+    else setSharedOctave(octaveOffset - 1, true);
+  }
 }
 // ========================= PHYSICAL CHAIN DISCOVERY ===============
 
@@ -1539,13 +2013,19 @@ void pulseRightNeighbor() {
 }
 
 void startDiscovery(bool fromRemap) {
-  (void)fromRemap;
+  if (fromRemap) {
+    triggerNetworkRefreshEffect();
+  }
+
   discoveryDone = false;
   isRemapping = true;
   networkHealthy = false;
+  triggerNetworkRefreshEffect();
 
   myBoardIndex = 0xFF;
   nodeList.count = 0;
+  lastDiscoveryAnnounceIndex = 0xFF;
+  lastDiscoveryAnnounceMs = 0;
 
   for (uint8_t i = 0; i < TOTAL_KEYS; i++) {
     keyBaseVelocity[i] = 0;
@@ -1555,7 +2035,7 @@ void startDiscovery(bool fromRemap) {
   pinMode(PIN_NEIGHBOR_LEFT, INPUT_PULLUP);
   pinMode(PIN_NEIGHBOR_RIGHT, OUTPUT);
   digitalWrite(PIN_NEIGHBOR_RIGHT, LOW);
-  delay(5);
+  delay(DISCOVERY_NEIGHBOR_SETTLE_MS);
   hasLeftNeighbor = (digitalRead(PIN_NEIGHBOR_LEFT) == LOW);
   bool isRoot = !hasLeftNeighbor;
 
@@ -1563,6 +2043,7 @@ void startDiscovery(bool fromRemap) {
   delay(2);
 
   uint32_t tStart = millis();
+  uint32_t nextDiscoverySignalMs = tStart + DISCOVERY_RETRY_MS;
 
   if (isRoot) {
     myBoardIndex = 0;
@@ -1576,29 +2057,44 @@ void startDiscovery(bool fromRemap) {
     processRs485();
 
     int leftNow = digitalRead(PIN_NEIGHBOR_LEFT);
-    if (leftPrev == HIGH && leftNow == LOW && myBoardIndex == 0xFF) {
-      uint8_t maxIdx = (myBoardIndex == 0xFF) ? 0 : myBoardIndex;
-      for (uint8_t i = 0; i < nodeList.count; i++) {
-        uint8_t idx = nodeList.nodes[i].boardIndex;
-        if (idx != 0xFF && idx > maxIdx) {
-          maxIdx = idx;
-        }
-      }
-      uint8_t newIdx = maxIdx + 1;
-      myBoardIndex = newIdx;
+    bool parentAnnounced = lastDiscoveryAnnounceIndex != 0xFF &&
+      (uint32_t)(millis() - lastDiscoveryAnnounceMs) <= DISCOVERY_PARENT_ANNOUNCE_MS;
+    if (leftPrev == HIGH && leftNow == LOW && parentAnnounced) {
+      // The announce is sent immediately before the physical pulse, so it
+      // carries the index of this board's direct left neighbor.
+      myBoardIndex = lastDiscoveryAnnounceIndex + 1;
+      hasLeftNeighbor = true;
+      isRoot = false;
       sendIdAnnounce(myBoardIndex);
       pulseRightNeighbor();
     }
     leftPrev = leftNow;
 
-    if (myBoardIndex != 0xFF && (millis() - tStart) > 100) {
-      break;
+    // Root repeats its token. Each board forwards the paired announce and
+    // pulse, allowing a late-starting board to correct a provisional index.
+    if (isRoot && millis() >= nextDiscoverySignalMs) {
+      sendIdAnnounce(myBoardIndex);
+      pulseRightNeighbor();
+      nextDiscoverySignalMs = millis() + DISCOVERY_RETRY_MS;
     }
 
+    renderLeds();
     delay(1);
   }
 
-  uint8_t maxIdx = (myBoardIndex == 0xFF) ? 0 : myBoardIndex;
+  // A late edge can still leave a non-root unassigned. The most recent
+  // announce is paired with the repeated physical token, so use it as a
+  // final fallback instead of incorrectly becoming a second board zero.
+  if (myBoardIndex == 0xFF) {
+    myBoardIndex = (hasLeftNeighbor && lastDiscoveryAnnounceIndex != 0xFF)
+      ? lastDiscoveryAnnounceIndex + 1
+      : 0;
+    sendIdAnnounce(myBoardIndex);
+    delay(6);
+    processRs485();
+  }
+
+  uint8_t maxIdx = myBoardIndex;
   for (uint8_t i = 0; i < nodeList.count; i++) {
     if (nodeList.nodes[i].boardIndex != 0xFF &&
         nodeList.nodes[i].boardIndex > maxIdx) {
@@ -1606,18 +2102,34 @@ void startDiscovery(bool fromRemap) {
     }
   }
   totalBoards = maxIdx + 1;
-
-  if (myBoardIndex == 0xFF) {
-    myBoardIndex = 0;
+  if (totalBoards == 0) {
+    totalBoards = 1;
   }
 
-  boardBaseNote = GLOBAL_BASE_NOTE + myBoardIndex * BOARD_NOTE_SPAN;
+  applyOctaveLocal(octaveOffset);
 
   discoveryDone = true;
+  remapScheduled = false;
   isRemapping = false;
   networkHealthy = true;
-}
+  lastCompletedRemapToken = currentRemapToken;
+  finishNetworkRefreshVisual();
+  buzzerApplySelectedNote();
+  FractureSongs::setTopology(myNodeId, myBoardIndex, totalBoards);
 
+  if (myBoardIndex == 0) {
+    uint8_t finalPayload[3] = {
+      (uint8_t)(currentRemapToken & 0xFF),
+      (uint8_t)((currentRemapToken >> 8) & 0xFF),
+      totalBoards
+    };
+    for (uint8_t attempt = 0; attempt < REMAP_REQUEST_REPEATS; ++attempt) {
+      rs485SendPacket(RS485_REMAP_FINAL_MSG, finalPayload, sizeof(finalPayload));
+      if (attempt + 1 < REMAP_REQUEST_REPEATS) delay(4);
+    }
+    broadcastSharedState();
+  }
+}
 // ========================= SETUP & LOOP ============================
 
 void setup() {
@@ -1625,14 +2137,22 @@ void setup() {
   delay(300);
   bootLog("BOOT 01: serial ready");
 
-  // USB MIDI via ESP32 TinyUSB
+  // Configure the song loader before adding MIDI and starting TinyUSB.
+  FractureSongs::beginBeforeUsb(rs485SendPacket);
+  bool loaderBoot = FractureSongs::isUsbLoaderBoot();
+#if FRACTURE_USB_DEVICE_ENABLED
+  USB.manufacturerName("Fracture");
+  USB.productName(loaderBoot ? "Fracture Keyboard + Song Loader" : "Fracture Keyboard");
+#endif
 #if FRACTURE_USB_MIDI_ENABLED
-  usb_midi.begin();
+  usbMidi.begin();
+#endif
+#if FRACTURE_USB_DEVICE_ENABLED
   USB.begin();
-  bootLog("BOOT 02: USB MIDI ready");
+  bootLog(loaderBoot ? "BOOT 02: USB loader ready" : "BOOT 02: USB device ready");
 #else
-  Serial.println("USB MIDI disabled. Set Tools > USB Mode to USB-OTG (TinyUSB) for MIDI output.");
-  bootLog("BOOT 02: USB MIDI skipped");
+  Serial.println("USB MIDI/song drive disabled. Set Tools > USB Mode to USB-OTG (TinyUSB).");
+  bootLog("BOOT 02: USB device skipped");
 #endif
 
   // Mux pins
@@ -1660,8 +2180,8 @@ void setup() {
   pinMode(PIN_BUZZER, OUTPUT);
   digitalWrite(PIN_BUZZER, LOW);
 #if FRACTURE_ENABLE_BUZZER_SYNTH
-  buzzerPwmReady = ledcAttach(PIN_BUZZER, 1000, BUZZER_PWM_RESOLUTION);
-  ledcWrite(PIN_BUZZER, 0);
+  buzzerPwmReady = buzzerPwmAttach(PIN_BUZZER, 1000, BUZZER_PWM_RESOLUTION);
+  buzzerPwmWrite(0);
   buzzerStopAllInternal();
   bootLog(buzzerPwmReady ? "BOOT 05: buzzer PWM ready" : "BOOT 05: buzzer PWM failed");
 #else
@@ -1681,8 +2201,10 @@ void setup() {
   bootLog("BOOT 08: audio init complete");
 
   // Node ID
-  myNodeId = readRandom32();
+  uint64_t chipId = ESP.getEfuseMac();
+  myNodeId = (uint32_t)chipId ^ (uint32_t)(chipId >> 32);
   nodeList.count = 0;
+  FractureSongs::setTopology(myNodeId, 0, 1);
 
   // Ping state
   awaitingPingReplies = false;
@@ -1699,8 +2221,8 @@ void setup() {
 }
 
 void loop() {
-  if (remapRequested) {
-    remapRequested = false;
+  if (remapScheduled && (int32_t)(millis() - remapStartAtMs) >= 0) {
+    remapScheduled = false;
     startDiscovery(true);
   }
 
@@ -1708,11 +2230,15 @@ void loop() {
 
   scanKeys();
   handleEncoderButton();
+  handleEncoderMovement();
+  FractureSongs::update();
 
   audioGenerateAndWrite();
 
   uint32_t nowMs = millis();
-  if (myBoardIndex == 0 && totalBoards > 1) {
+  if (FractureSongs::blocksNetworkMaintenance()) {
+    awaitingPingReplies = false;
+  } else if (myBoardIndex == 0 && totalBoards > 1) {
     if (!awaitingPingReplies && (nowMs - lastPingMs > PING_INTERVAL_MS)) {
       sendPing();
       lastPingMs = nowMs;
@@ -1727,9 +2253,7 @@ void loop() {
       awaitingPingReplies = false;
       if (missing) {
         networkHealthy = false;
-        uint8_t dummy = 0;
-        rs485SendPacket(RS485_REMAP_REQUEST_MSG, &dummy, 0);
-        remapRequested = true;
+        requestNetworkRemap();
       } else {
         networkHealthy = true;
       }

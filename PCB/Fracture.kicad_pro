@@ -62,7 +62,7 @@
       ],
       "drc_exclusions": [
         [
-          "lib_footprint_mismatch|205800000|64000000|ff1bf52d-f318-4570-a22f-74b4b858f8a5|00000000-0000-0000-0000-000000000000",
+          "lib_footprint_mismatch|17000000|44410000|5da8295a-6354-47a4-9c53-751c0fb5bb50|00000000-0000-0000-0000-000000000000",
           ""
         ],
         [
@@ -70,19 +70,7 @@
           ""
         ],
         [
-          "lib_footprint_mismatch|32800000|32600000|df1b6480-9974-4708-b819-beb536bcff18|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
-          "lib_footprint_mismatch|41600000|26432500|2b65619e-ce4a-453d-8847-b4f0241aa817|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
-          "lib_footprint_mismatch|51600000|29600000|ca37dc6b-6b16-4481-993b-f678433e4b23|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
-          "lib_footprint_mismatch|61400000|32600000|b37c57e9-bc89-451a-af0e-c07c07edb39f|00000000-0000-0000-0000-000000000000",
+          "lib_footprint_mismatch|280400000|44410000|da06fe82-bbb9-49d4-b54b-5f9d9f624f59|00000000-0000-0000-0000-000000000000",
           ""
         ]
       ],
@@ -536,14 +524,13 @@
         "priority": 2147483647,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.2,
-        "tuning_profile": "",
         "via_diameter": 0.6,
         "via_drill": 0.3,
         "wire_width": 6
       }
     ],
     "meta": {
-      "version": 5
+      "version": 4
     },
     "net_colors": null,
     "netclass_assignments": null,

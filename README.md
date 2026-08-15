@@ -107,6 +107,8 @@ Ideas, improvements, and constructive roasting welcome.
 
 ---
 
+![Fracture Poster](./Renders/Fracture%20Zine%20Poster.png)
+
 ## Disclaimer
 
 This project is open-source and powered by *vibes and a sprinkle of C++*.
