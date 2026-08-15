@@ -90,6 +90,12 @@ All the silicon, magnetics, and glowsticks live **[here](/BOM.csv)**.
 
 ---
 
+### CAD
+
+The CAD is open source **[here](https://cad.onshape.com/documents/bea10ccfe312cfdc51de28f9/w/cdd1b06aedba101817164f81/e/67c5d527eacfd380be4e1fa2?renderMode=0&uiState=6a7fc6f7e4259023fe357a6a)**.
+
+---
+
 ## Why?
 
 Because regular MIDI controllers are boring. Off-the-shelf keyboards don’t re-map themselves and you usually cant chain them together.
@@ -97,6 +103,12 @@ Because regular MIDI controllers are boring. Off-the-shelf keyboards don’t re-
 Fracture exists to be modular, mildly smart, and just slightly over-engineered.
 
 I honestly thought this would be an easier project, but feature creep got the best of me...
+
+---
+
+## Usage
+
+After you have your board, follow [this guide](/Firmware/Fracture_Keyboard/SONG_MODE.md) for flashing settings and flash [Fracture_Keyboard.ino](/Firmware/Fracture_Keyboard/Fracture_Keyboard.ino) onto your board.
 
 ---
 
